@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "Tests": "Server=DESKTOP-KF96CSK\\MSSQLSERVER01;Database=TestDatabase;Integrated Security=True;"
+  }
+}
