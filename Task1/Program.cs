@@ -14,37 +14,16 @@ class Program
 {
     private static void Main(string[] args)
     {
+        Start();
 
-        try
-        {
-            Start();
-        }
-        finally
-        {
-            Console.WriteLine("Exiting"); 
-        }
     }
 
     private static void Start()
     {
 
+        TradingCompany company = new TradingCompany();
+
         Console.WriteLine("Welcome to the system!");
-
-        var configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("config.json")
-            .Build();
-
-        string? connectionString = configuration.GetConnectionString("SqlServer");
-
-        if (connectionString == null)
-        {
-            Console.WriteLine("Unable to connect to the SQL server");
-            return;
-        }
-
-
-        IDatabase database = new DAL.AdoNet.Database(connectionString);
 
         while (true)
         {
@@ -53,11 +32,10 @@ class Program
             Console.WriteLine("Q. Quit");
 
             string? choice = Console.ReadLine();
-
             if (choice == null)
                 continue;
 
-            if (choice?.ToLower() == "q")
+            if (choice.ToLower() == "q")
             {
                 Console.WriteLine("Goodbye!");
                 break;
@@ -66,7 +44,7 @@ class Program
             switch (choice)
             {
                 case "1":
-                    LogIn(database);
+                    LogIn(company);
                     break;
                 default:
                     Console.WriteLine("Invalid option. Please try again.");
@@ -75,7 +53,7 @@ class Program
         }
     }
 
-    private static void LogIn(IDatabase database)
+    private static void LogIn(TradingCompany company)
     {
         Console.Write("Enter username: ");
         string? username = Console.ReadLine();
@@ -86,34 +64,32 @@ class Program
         if (username == null || password == null)
             return;
 
-        UserData? user = database.UserDal.Login(username, password);
+        User? user = company.LogIn(username, password);
 
         if (user == null)
         {
-            PasswordRecover(database, username);
+            PasswordRecover(company);
             return;
         }
 
-        // Створення сесії після успішного входу
-        database.SessionDal.StartSession(user.UserId);
-        Console.WriteLine($"Welcome, {user.Username}! Your role is {user.Role}.");
+        Console.WriteLine($"Welcome, {user.Data.Username}! Your role is {user.Role}.");
 
-        if (user.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+        if (user.Role == UserRole.Admin)
         {
-            AdminMenu(database, user);
+            AdminMenu(company);
         }
         else
         {
-            UserMenu(database, user);
+            UserMenu(company);
         }
     }
 
-    private static void PasswordRecover(IDatabase database, string username)
+    private static void PasswordRecover(TradingCompany company)
     {
         Console.WriteLine("Invalid username or password.");
+
         Console.Write("Do you want to recover your password? (yes/no): ");
         string? recoverChoice = Console.ReadLine();
-
         if (recoverChoice == null)
             return;
 
@@ -122,33 +98,28 @@ class Program
 
         Console.Write("Enter your recovery key: ");
         string? recoveryKey = Console.ReadLine();
-
         if (recoveryKey == null)
             return;
 
-        UserData recoveryUser = database.UserDal.GetUserByUsername(username);
-
-        if (recoveryUser == null || recoveryUser.RecoveryKey != recoveryKey)
+        bool correctKey = company.CheckRecoveryKey(recoveryKey);
+        if (!correctKey)
         {
-            Console.WriteLine("Invalid recovery key. Cannot recover password.");
+            Console.WriteLine("Incorrect recovery key");
             return;
         }
 
         Console.Write("Enter a new password: ");
         string? newPassword = Console.ReadLine();
-
         if (newPassword == null)
-        {
             return;
-        }
 
-        database.UserDal.UpdateUser("Password", newPassword, recoveryUser.UserId);
+        company.UpdatePassword(recoveryKey, newPassword);
+
         Console.WriteLine("Your password has been updated. Please log in again.");
-        return;
     }
 
 
-    static void AdminMenu(IDatabase database, UserData admin)
+    static void AdminMenu(TradingCompany company)
     {
         while (true)
         {
@@ -172,98 +143,36 @@ class Program
             switch (choice)
             {
                 case "1":
-                    List<UserData> users = database.UserDal.GetAllUsers();
+                    List<User> users = company.GetAllUsers();
                     Console.WriteLine("\nUser List:");
                     foreach (var user in users)
                     {
-                        Console.WriteLine($"ID: {user.UserId}, Username: {user.Username}, Role: {user.Role}");
+                        Console.WriteLine($"ID: {user.Data.UserId}, Username: {user.Data.Username}, Role: {user.Role}");
                     }
                     break;
 
                 case "2":
-                    ViewProfile(database, admin);
+                    ViewProfile(company, company.LoggedInUser);
                     break;
 
                 case "3":
-                    UpdateProfile(database, admin.UserId);
+                    UpdateProfile(company, company.LoggedInUser);
                     break;
 
                 case "4":
-                    // View detailed profile of another user
-                    Console.Write("Enter the ID of the user to view their profile: ");
-                    if (int.TryParse(Console.ReadLine(), out int detailedUserId))
-                    {
-                        UserData detailedUser = database.UserDal.GetUser(detailedUserId);
-                        if (detailedUser != null)
-                        {
-                            ViewProfile(database, detailedUser);
-                        }
-                        else
-                        {
-                            Console.WriteLine("User not found.");
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid ID. Please enter a valid user ID.");
-                    }
+                    ViewOtherUserProfile(company);
                     break;
 
-                // Edit a user profile
                 case "5":
-                    Console.Write("Enter the ID of the user to edit their profile: ");
-                    if (!int.TryParse(Console.ReadLine(), out int userIdToEdit))
-                    {
-                        Console.WriteLine("Invalid ID. Please enter a valid user ID.");
-                        continue;
-                    }
-
-                    UserData userToEdit = database.UserDal.GetUser(userIdToEdit);
-                    if (userToEdit != null)
-                    {
-                        Console.WriteLine($"Editing profile for user: {userToEdit.Username}");
-                        UpdateProfile(database, userIdToEdit);
-                    }
-                    else
-                    {
-                        Console.WriteLine("User not found.");
-                    }
+                    EditOtherProfile(company);
                     break;
 
-                // Delete a user profile
                 case "6":
-                    Console.Write("Enter the ID of the user to delete: ");
-                    if (!int.TryParse(Console.ReadLine(), out int userIdToDelete))
-                    {
-                        Console.WriteLine("Invalid ID. Please enter a valid user ID.");
-                        continue;
-                    }
-
-                    UserData userToDelete = database.UserDal.GetUser(userIdToDelete);
-                    if (userToDelete != null)
-                    {
-                        Console.Write($"Are you sure you want to delete the profile of {userToDelete.Username}? (yes/no): ");
-                        string? confirmation = Console.ReadLine();
-
-                        if (confirmation == "yes")
-                        {
-                            database.UserDal.DeleteUser(userIdToDelete);
-                            Console.WriteLine("User profile deleted successfully.");
-                        }
-                        else
-                        {
-                            Console.WriteLine("User deletion canceled.");
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("User not found.");
-                    }
-                    
+                    DeleteOtherProfile(company);
                     break; 
                 case "7":
 
-                    var userSessions = database.SessionDal.GetUserSessions();
+                    var userSessions = company.GetAllUserSessions();
 
                     Console.WriteLine("\nUser Sessions:");
                     foreach (var session in userSessions)
@@ -273,38 +182,12 @@ class Program
                     break;
 
                 case "8":
-                    
-                    Console.Write("Enter the ID of the user whose session you want to end: ");
-                    if (!int.TryParse(Console.ReadLine(), out int userIdToEndSession))
-                    {
-                        Console.WriteLine("Invalid ID. Please enter a valid user ID.");
-                        continue;
-                    }
-
-                    UserData userToEndSession = database.UserDal.GetUser(userIdToEndSession);
-                    if (userToEndSession != null)
-                    {
-                        Console.Write($"Are you sure you want to end the session for {userToEndSession.Username}? (yes/no): ");
-                        string? confirmation = Console.ReadLine();
-                        if (confirmation == "yes")
-                        {
-                            database.SessionDal.EndSession(userIdToEndSession);
-                            Console.WriteLine($"Session for {userToEndSession.Username} has been ended.");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Action canceled.");
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("User not found.");
-                    }
+                    EndUserSession(company);
                     break;
 
 
                 case "9":
-                    database.SessionDal.EndSession(admin.UserId);
+                    company.EndUserSession(company.LoggedInUser);
                     Console.WriteLine("Logged out");
                     return;
 
@@ -315,7 +198,7 @@ class Program
         }
     }
 
-    private static void UserMenu(IDatabase database, UserData user)
+    private static void UserMenu(TradingCompany company)
     {
         while (true)
         {
@@ -331,13 +214,13 @@ class Program
             switch (choice)
             {
                 case "1":
-                    ViewProfile(database, user);
+                    ViewProfile(company, company.LoggedInUser);
                     break;
                 case "2":
-                    UpdateProfile(database, user.UserId);
+                    UpdateProfile(company, company.LoggedInUser);
                     break;
                 case "3":
-                    database.SessionDal.EndSession(user.UserId);
+                    company.EndUserSession(company.LoggedInUser);
                     Console.WriteLine("Logged out");
                     return;
                 default:
@@ -347,28 +230,31 @@ class Program
         }
     }
 
-    private static void ViewProfile(IDatabase database, UserData user)
+    private static void ViewProfile(TradingCompany company, User? user)
     {
-        Console.WriteLine("\nYour Profile:");
-        Console.WriteLine($"Username: {user.Username}");
-        Console.WriteLine($"Email: {user.Email}");
-        Console.WriteLine($"Role: {user.Role}");
-        Console.WriteLine($"FirstName: {user.FirstName}");
-        Console.WriteLine($"LastName: {user.LastName}");
-        Console.WriteLine($"Gender: {user.Gender}");
-        Console.WriteLine($"PhoneNumber: {user.PhoneNumber}");
-        Console.WriteLine($"Address: {user.Address}");
+        if (user == null)
+            return;
 
-        if (user.ProfilePicture != null && user.ProfilePicture.Length > 0)
+        Console.WriteLine("\nYour Profile:");
+        Console.WriteLine($"Username: {user.Data.Username}");
+        Console.WriteLine($"Email: {user.Data.Email}");
+        Console.WriteLine($"Role: {user.Data.Role}");
+        Console.WriteLine($"FirstName: {user.Data.FirstName}");
+        Console.WriteLine($"LastName: {user.Data.LastName}");
+        Console.WriteLine($"Gender: {user.Data.Gender}");
+        Console.WriteLine($"PhoneNumber: {user.Data.PhoneNumber}");
+        Console.WriteLine($"Address: {user.Data.Address}");
+
+        if (user.Data.ProfilePicture != null && user.Data.ProfilePicture.Length > 0)
         {
             Console.WriteLine("Profile Picture: Uploaded");
 
             // Додати UserId до назви файлу
-            string outputFileName = $"ProfilePicture_UserId_{user.UserId}.jpg";
+            string outputFileName = $"ProfilePicture_UserId_{user.Data.UserId}.jpg";
             string outputFilePath = Path.Combine(Environment.CurrentDirectory, outputFileName);
 
             // Зберегти файл
-            File.WriteAllBytes(outputFilePath, user.ProfilePicture);
+            File.WriteAllBytes(outputFilePath, user.Data.ProfilePicture);
             Console.WriteLine($"Profile picture exported to: {outputFilePath}");
         }
         else
@@ -378,7 +264,7 @@ class Program
 
 
         // Отримати банківські дані
-        BankDetailData? bankDetails = database.BankDetailDal.GetBankDetailData(user.UserId);
+        BankDetailData? bankDetails = company.GetBankDetail(user);
         if (bankDetails != null)
         {
             Console.WriteLine("\nBank Details:");
@@ -393,8 +279,112 @@ class Program
         }
     }
 
-    private static void UpdateProfile(IDatabase database, int userId)
+    private static void ViewOtherUserProfile(TradingCompany company)
     {
+        Console.Write("Enter the ID of the user to view their profile: ");
+        if (!int.TryParse(Console.ReadLine(), out int detailedUserId))
+        {
+            Console.WriteLine("Invalid ID. Please enter a valid user ID.");
+            return;
+        }
+
+        User? detailedUser = company.GetUser(detailedUserId);
+        if (detailedUser == null)
+        {
+            Console.WriteLine("User not found.");
+            return;
+        }
+    
+        ViewProfile(company, detailedUser);
+    }
+
+    private static void EditOtherProfile(TradingCompany company)
+    {
+        Console.Write("Enter the ID of the user to edit their profile: ");
+        if (!int.TryParse(Console.ReadLine(), out int userIdToEdit))
+        {
+            Console.WriteLine("Invalid ID. Please enter a valid user ID.");
+            return;
+        }
+
+        User? userToEdit = company.GetUser(userIdToEdit);
+        if (userToEdit != null)
+        {
+            Console.WriteLine($"Editing profile for user: {userToEdit.Data.Username}");
+            UpdateProfile(company, userToEdit);
+        }
+        else
+        {
+            Console.WriteLine("User not found.");
+        }
+    }
+
+    private static void DeleteOtherProfile(TradingCompany company)
+    {
+        Console.Write("Enter the ID of the user to delete: ");
+        if (!int.TryParse(Console.ReadLine(), out int userIdToDelete))
+        {
+            Console.WriteLine("Invalid ID. Please enter a valid user ID.");
+            return;
+        }
+
+        User? userToDelete = company.GetUser(userIdToDelete);
+        if (userToDelete == null)
+        {
+            Console.WriteLine("User not found.");
+            return;
+        }
+
+        Console.Write($"Are you sure you want to delete the profile of {userToDelete.Data.Username}? (yes/no): ");
+        string? confirmation = Console.ReadLine();
+
+        if (confirmation == "yes")
+        {
+            company.DeleteUser(userToDelete);
+            Console.WriteLine("User profile deleted successfully.");
+        }
+        else
+        {
+            Console.WriteLine("User deletion canceled.");
+        }
+        
+    }
+
+    private static void EndUserSession(TradingCompany company)
+    {
+
+        Console.Write("Enter the ID of the user whose session you want to end: ");
+        if (!int.TryParse(Console.ReadLine(), out int userIdToEndSession))
+        {
+            Console.WriteLine("Invalid ID. Please enter a valid user ID.");
+            return;
+        }
+
+        User? userToEndSession = company.GetUser(userIdToEndSession);
+        if (userToEndSession == null)
+        {
+            Console.WriteLine("User not found.");
+            return;
+        }
+
+        Console.Write($"Are you sure you want to end the session for {userToEndSession.Data.Username}? (yes/no): ");
+        string? confirmation = Console.ReadLine();
+        if (confirmation == "yes")
+        {
+            company.EndUserSession(userToEndSession);
+            Console.WriteLine($"Session for {userToEndSession.Data.Username} has been ended.");
+        }
+        else
+        {
+            Console.WriteLine("Action canceled.");
+        }
+    }
+
+    private static void UpdateProfile(TradingCompany company, User? user)
+    {
+        if (user == null)
+            return;
+
         while (true)
         {
             Console.WriteLine("Available fields to update:");
@@ -424,24 +414,37 @@ class Program
                 continue;
             }
 
+
+            object? value;
             if (choice == UpdateProfileChoice.ProfilePicture)
             {
-                UpdatePicture(database, userId);
+                value = ReadPicture();
+                if (value == null)
+                    return;
+
+                company.UpdateUser(user, choice.ToString(), value);
+                Console.WriteLine("Profile updated successfully.");
             }
             else if (choice == UpdateProfileChoice.BankDetails)
             {
-                UpdateBankDetails(database, userId);
+                BankDetailData? data = ReadBankDetails(company, user);
+                if (data == null)
+                    return;
+
+                company.UpdateBankDetail(data);
+                Console.WriteLine("Bank details updated successfully.");
             }
             else
             {
                 Console.Write("Enter new value: ");
-                string? value = Console.ReadLine();
+                value = Console.ReadLine();
                 if (value == null)
-                    continue;
+                    return;
 
-                database.UserDal.UpdateUser(choice.ToString(), value, userId);
+                company.UpdateUser(user, choice.ToString(), value);
                 Console.WriteLine("Profile updated successfully.");
             }
+
         }
     }
 
@@ -459,54 +462,54 @@ class Program
         BankDetails
     }
 
-    private static void UpdateBankDetails(IDatabase database, int userId)
+    private static BankDetailData? ReadBankDetails(TradingCompany company, User user)
     {
         Console.Write("Enter card number: ");
         string? cardNumber = Console.ReadLine();
         if (cardNumber == null)
-            return;
+            return null;
 
         if (!BankDetailData.IsValidCardNumber(cardNumber))
         {
             Console.WriteLine("Invalid card number. Please try again.");
-            return; // Повертаємося до меню, якщо номер картки недійсний
+            return null; // Повертаємося до меню, якщо номер картки недійсний
         }
 
         Console.Write("Enter expiration date (MM/YY): ");
         string? expirationDate = Console.ReadLine();
         if (expirationDate == null)
-            return;
+            return null;
         
         if (!BankDetailData.IsValidExpirationDate(expirationDate))
         {
             Console.WriteLine("Invalid or expired card. Please try again.");
-            return;
+            return null;
         }
 
         Console.Write("Enter CVV: ");
         string? cvv = Console.ReadLine();
         if (cvv == null)
-            return;
+            return null;
 
         if (!BankDetailData.IsValidCVV(cvv))
         {
             Console.WriteLine("Invalid CVV. Please try again.");
-            return;
+            return null;
         }
 
         Console.Write("Enter card holder name: ");
         string? cardHolderName = Console.ReadLine();
         if (cardHolderName == null)
-            return;
+            return null;
 
         Console.Write("Enter billing address: ");
         string? billingAddress = Console.ReadLine();
         if (billingAddress == null)
-            return;
+            return null;
 
         BankDetailData bankDetail = new BankDetailData
         {
-            UserId = userId,
+            UserId = user.Data.UserId,
             CardNumber = cardNumber,
             ExpirationDate = expirationDate,
             CardCVV = cvv,
@@ -514,11 +517,10 @@ class Program
             BillingAddress = billingAddress
         };
 
-        database.BankDetailDal.UpdateBankDetail(bankDetail);
-        Console.WriteLine("Bank details updated successfully.");
+        return bankDetail;
     }
 
-    private static void UpdatePicture(IDatabase database, int userId)
+    private static byte[]? ReadPicture()
     {
         Console.WriteLine("Save your profile picture in the following directory:");
         Console.WriteLine(Environment.CurrentDirectory);
@@ -527,7 +529,7 @@ class Program
         string? fileName = Console.ReadLine();
 
         if (fileName == null)
-            return;
+            return null;
 
         // Формуємо повний шлях
         string filePath = Path.Combine(Environment.CurrentDirectory, fileName);
@@ -536,23 +538,20 @@ class Program
         if (!File.Exists(filePath))
         {
             Console.WriteLine("File not found in the current directory. Please try again.");
-            return;
+            return null;
         }
 
         try
         {
             // Прочитати файл у байтовий масив
-            byte[] imageData = File.ReadAllBytes(filePath);
-
-            // Зберегти дані у базу
-            database.UserDal.UpdateUser("ProfilePicture", imageData, userId);
-            Console.WriteLine("Profile picture uploaded successfully.");
+            return File.ReadAllBytes(filePath);
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error while uploading profile picture: {ex.Message}");
         }
 
+        return null;
     }
 }
 
