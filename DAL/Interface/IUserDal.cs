@@ -4,7 +4,7 @@ namespace DAL.Interface
 {
     public interface IUserDal
     {
-        public UserData Login(string username, string password);
+        public UserData? Login(string username, string password);
 
         public void UpdateUser(string columnName, object newValue, int userId);
 

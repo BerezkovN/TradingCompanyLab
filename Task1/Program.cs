@@ -1,12 +1,4 @@
-﻿/*var configuration = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("conFile.json")
-    .Build();
-
-string connectionString = configuration.GetConnectionString("Task1");
-var connection = new SqlConnection(connectionString);*/
-
-
+﻿
 using System;
 using System.Collections.Generic;
 using DTO;
@@ -15,26 +7,31 @@ using DAL.AdoNet;
 using System.Data.SqlClient;
 using System.IO;
 using Microsoft.Extensions.Configuration;
+using BusinessLogic;
+using System.Data.Entity;
 
 class Program
 {
-    static void Main(string[] args)
+    private static void Main(string[] args)
     {
+
         Console.WriteLine("Welcome to the system!");
 
         var configuration = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("conFile.json")
-    .Build();
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("config.json")
+            .Build();
 
-        string connectionString = configuration.GetConnectionString("Task1");
-        var connection = new SqlConnection(connectionString);
+        string? connectionString = configuration.GetConnectionString("SqlServer");
+
+        if (connectionString == null)
+        {
+            Console.WriteLine("Unable to connect to the SQL server");
+            return;
+        }
 
 
-        IDatabase database = new Database(connectionString);
-        IUserDal userDal = database.GetUserDal();
-        IBankDetailDal bankDetailDal = database.GetBankDetailDal();
-        ISessionDal sessionDal = database.GetSessionDal();
+        IDatabase database = new DAL.AdoNet.Database(connectionString);
 
         while (true)
         {
@@ -42,9 +39,12 @@ class Program
             Console.WriteLine("1. Log in");
             Console.WriteLine("Q. Quit");
 
-            string choice = Console.ReadLine()?.Trim();
+            string? choice = Console.ReadLine();
 
-            if (choice?.ToUpper() == "Q")
+            if (choice == null)
+                continue;
+
+            if (choice?.ToLower() == "q")
             {
                 Console.WriteLine("Goodbye!");
                 break;
@@ -53,69 +53,90 @@ class Program
             switch (choice)
             {
                 case "1":
-                    LogIn(userDal, bankDetailDal, sessionDal);
+                    LogIn(database);
                     break;
                 default:
                     Console.WriteLine("Invalid option. Please try again.");
                     break;
             }
         }
+
     }
 
-    static void LogIn(IUserDal userDal, IBankDetailDal bankDetailDal, ISessionDal sessionDal)
+    private static void LogIn(IDatabase database)
     {
         Console.Write("Enter username: ");
-        string username = Console.ReadLine()?.Trim();
+        string? username = Console.ReadLine();
+        
         Console.Write("Enter password: ");
-        string password = Console.ReadLine()?.Trim();
+        string? password = Console.ReadLine();
 
-        UserData user = userDal.Login(username, password);
+        if (username == null || password == null)
+            return;
+
+        UserData? user = database.UserDal.Login(username, password);
 
         if (user == null)
         {
-            Console.WriteLine("Invalid username or password.");
-            Console.Write("Do you want to recover your password? (yes/no): ");
-            string recoverChoice = Console.ReadLine()?.Trim().ToLower();
-
-            if (recoverChoice == "yes")
-            {
-                Console.Write("Enter your recovery key: ");
-                string recoveryKey = Console.ReadLine()?.Trim();
-                UserData recoveryUser = userDal.GetUserByUsername(username);
-
-                if (recoveryUser != null && recoveryUser.RecoveryKey == recoveryKey)
-                {
-                    Console.Write("Enter a new password: ");
-                    string newPassword = Console.ReadLine()?.Trim();
-                    userDal.UpdateUser("Password", newPassword, recoveryUser.UserId);
-                    Console.WriteLine("Your password has been updated. Please log in again.");
-                    return;
-                }
-                else
-                {
-                    Console.WriteLine("Invalid recovery key. Cannot recover password.");
-                }
-            }
+            PasswordRecover(database, username);
             return;
         }
 
         // Створення сесії після успішного входу
-        sessionDal.StartSession(user.UserId);
+        database.SessionDal.StartSession(user.UserId);
         Console.WriteLine($"Welcome, {user.Username}! Your role is {user.Role}.");
 
         if (user.Role.Equals("Admin", StringComparison.OrdinalIgnoreCase))
         {
-            AdminMenu(user, userDal, sessionDal, bankDetailDal);
+            AdminMenu(database, user);
         }
         else
         {
-            UserMenu(user, userDal, bankDetailDal, sessionDal);
+            UserMenu(database, user);
         }
     }
 
+    private static void PasswordRecover(IDatabase database, string username)
+    {
+        Console.WriteLine("Invalid username or password.");
+        Console.Write("Do you want to recover your password? (yes/no): ");
+        string? recoverChoice = Console.ReadLine();
+
+        if (recoverChoice == null)
+            return;
+
+        if (recoverChoice.ToLower() != "yes")
+            return;
+
+        Console.Write("Enter your recovery key: ");
+        string? recoveryKey = Console.ReadLine();
+
+        if (recoveryKey == null)
+            return;
+
+        UserData recoveryUser = database.UserDal.GetUserByUsername(username);
+
+        if (recoveryUser == null || recoveryUser.RecoveryKey != recoveryKey)
+        {
+            Console.WriteLine("Invalid recovery key. Cannot recover password.");
+            return;
+        }
+
+        Console.Write("Enter a new password: ");
+        string? newPassword = Console.ReadLine();
+
+        if (newPassword == null)
+        {
+            return;
+        }
+
+        database.UserDal.UpdateUser("Password", newPassword, recoveryUser.UserId);
+        Console.WriteLine("Your password has been updated. Please log in again.");
+        return;
+    }
 
 
-    static void AdminMenu(UserData admin, IUserDal userDal, ISessionDal sessionDal, IBankDetailDal bankDetailDal)
+    static void AdminMenu(IDatabase database, UserData admin)
     {
         while (true)
         {
@@ -131,12 +152,15 @@ class Program
             Console.WriteLine("9. Log out");
 
 
-            string choice = Console.ReadLine()?.Trim();
+            string? choice = Console.ReadLine();
+            if (choice == null)
+                return;
+
 
             switch (choice)
             {
                 case "1":
-                    List<UserData> users = userDal.GetAllUsers();
+                    List<UserData> users = database.UserDal.GetAllUsers();
                     Console.WriteLine("\nUser List:");
                     foreach (var user in users)
                     {
@@ -145,31 +169,11 @@ class Program
                     break;
 
                 case "2":
-                    Console.WriteLine("\nYour Profile:");
-                    Console.WriteLine($"Username: {admin.Username}");
-                    Console.WriteLine($"Email: {admin.Email}");
-                    Console.WriteLine($"Role: {admin.Role}");
-                    Console.WriteLine($"FirstName: {admin.FirstName}");
-                    Console.WriteLine($"LastName: {admin.LastName}");
-                    Console.WriteLine($"Gender: {admin.Gender}");
-                    Console.WriteLine($"PhoneNumber: {admin.PhoneNumber}");
-                    Console.WriteLine($"Address: {admin.Address}");
-
-                    if (admin.ProfilePicture != null && admin.ProfilePicture.Length > 0)
-                    {
-                        string outputFilePath = Path.Combine(Environment.CurrentDirectory, $"ProfilePicture_Admin_{admin.UserId}.jpg");
-                        File.WriteAllBytes(outputFilePath, admin.ProfilePicture);
-                        Console.WriteLine($"Profile picture exported to: {outputFilePath}");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Profile Picture: Not uploaded");
-                    }
+                    ViewProfile(database, admin);
                     break;
 
                 case "3":
-                    // Update admin's own profile
-                    UpdateProfile(admin.UserId, userDal, bankDetailDal);
+                    UpdateProfile(database, admin.UserId);
                     break;
 
                 case "4":
@@ -177,29 +181,10 @@ class Program
                     Console.Write("Enter the ID of the user to view their profile: ");
                     if (int.TryParse(Console.ReadLine(), out int detailedUserId))
                     {
-                        UserData detailedUser = userDal.GetUser(detailedUserId);
+                        UserData detailedUser = database.UserDal.GetUser(detailedUserId);
                         if (detailedUser != null)
                         {
-                            Console.WriteLine("\nUser Profile:");
-                            Console.WriteLine($"Username: {detailedUser.Username}");
-                            Console.WriteLine($"Email: {detailedUser.Email}");
-                            Console.WriteLine($"Role: {detailedUser.Role}");
-                            Console.WriteLine($"FirstName: {detailedUser.FirstName}");
-                            Console.WriteLine($"LastName: {detailedUser.LastName}");
-                            Console.WriteLine($"Gender: {detailedUser.Gender}");
-                            Console.WriteLine($"PhoneNumber: {detailedUser.PhoneNumber}");
-                            Console.WriteLine($"Address: {detailedUser.Address}");
-
-                            if (detailedUser.ProfilePicture != null && detailedUser.ProfilePicture.Length > 0)
-                            {
-                                string outputFilePath = Path.Combine(Environment.CurrentDirectory, $"ProfilePicture_UserId_{detailedUser.UserId}.jpg");
-                                File.WriteAllBytes(outputFilePath, detailedUser.ProfilePicture);
-                                Console.WriteLine($"Profile picture exported to: {outputFilePath}");
-                            }
-                            else
-                            {
-                                Console.WriteLine("Profile Picture: Not uploaded");
-                            }
+                            ViewProfile(database, admin);
                         }
                         else
                         {
@@ -212,101 +197,102 @@ class Program
                     }
                     break;
 
+                // Edit a user profile
                 case "5":
-                    // Edit a user profile
                     Console.Write("Enter the ID of the user to edit their profile: ");
-                    if (int.TryParse(Console.ReadLine(), out int userIdToEdit))
+                    if (!int.TryParse(Console.ReadLine(), out int userIdToEdit))
                     {
-                        UserData userToEdit = userDal.GetUser(userIdToEdit);
-                        if (userToEdit != null)
-                        {
-                            Console.WriteLine($"Editing profile for user: {userToEdit.Username}");
-                            UpdateProfile(userIdToEdit, userDal, bankDetailDal);
-                        }
-                        else
-                        {
-                            Console.WriteLine("User not found.");
-                        }
+                        Console.WriteLine("Invalid ID. Please enter a valid user ID.");
+                        continue;
+                    }
+
+                    UserData userToEdit = database.UserDal.GetUser(userIdToEdit);
+                    if (userToEdit != null)
+                    {
+                        Console.WriteLine($"Editing profile for user: {userToEdit.Username}");
+                        UpdateProfile(database, userIdToEdit);
                     }
                     else
                     {
-                        Console.WriteLine("Invalid ID. Please enter a valid user ID.");
+                        Console.WriteLine("User not found.");
                     }
                     break;
 
+                // Delete a user profile
                 case "6":
-                    // Delete a user profile
                     Console.Write("Enter the ID of the user to delete: ");
-                    if (int.TryParse(Console.ReadLine(), out int userIdToDelete))
+                    if (!int.TryParse(Console.ReadLine(), out int userIdToDelete))
                     {
-                        UserData userToDelete = userDal.GetUser(userIdToDelete);
-                        if (userToDelete != null)
+                        Console.WriteLine("Invalid ID. Please enter a valid user ID.");
+                        continue;
+                    }
+
+                    UserData userToDelete = database.UserDal.GetUser(userIdToDelete);
+                    if (userToDelete != null)
+                    {
+                        Console.Write($"Are you sure you want to delete the profile of {userToDelete.Username}? (yes/no): ");
+                        string? confirmation = Console.ReadLine();
+
+                        if (confirmation == "yes")
                         {
-                            Console.Write($"Are you sure you want to delete the profile of {userToDelete.Username}? (yes/no): ");
-                            string confirmation = Console.ReadLine()?.ToLower();
-                            if (confirmation == "yes")
-                            {
-                                userDal.DeleteUser(userIdToDelete);
-                                Console.WriteLine("User profile deleted successfully.");
-                            }
-                            else
-                            {
-                                Console.WriteLine("User deletion canceled.");
-                            }
+                            database.UserDal.DeleteUser(userIdToDelete);
+                            Console.WriteLine("User profile deleted successfully.");
                         }
                         else
                         {
-                            Console.WriteLine("User not found.");
+                            Console.WriteLine("User deletion canceled.");
                         }
                     }
                     else
                     {
-                        Console.WriteLine("Invalid ID. Please enter a valid user ID.");
+                        Console.WriteLine("User not found.");
                     }
+                    
                     break; 
                 case "7":
-                    var userSessions = sessionDal.GetUserSessions();
+
+                    var userSessions = database.SessionDal.GetUserSessions();
+
                     Console.WriteLine("\nUser Sessions:");
                     foreach (var session in userSessions)
                     {
-                        Console.WriteLine($"UserID: {session.UserId}, Username: {session.Username}, Status: {session.Status}, Login Time: {session.LoginTime}, Logout Time: {session.LogoutTime}");
+                        Console.WriteLine($"UserID: {session.UserId}, Status: {session.Status}, Login Time: {session.LoginTime}, Logout Time: {session.LogoutTime}");
                     }
                     break;
+
                 case "8":
                     
                     Console.Write("Enter the ID of the user whose session you want to end: ");
-                    if (int.TryParse(Console.ReadLine(), out int userIdToEndSession))
+                    if (!int.TryParse(Console.ReadLine(), out int userIdToEndSession))
                     {
-                        UserData userToEndSession = userDal.GetUser(userIdToEndSession);
-                        if (userToEndSession != null)
+                        Console.WriteLine("Invalid ID. Please enter a valid user ID.");
+                        continue;
+                    }
+
+                    UserData userToEndSession = database.UserDal.GetUser(userIdToEndSession);
+                    if (userToEndSession != null)
+                    {
+                        Console.Write($"Are you sure you want to end the session for {userToEndSession.Username}? (yes/no): ");
+                        string? confirmation = Console.ReadLine();
+                        if (confirmation == "yes")
                         {
-                            Console.Write($"Are you sure you want to end the session for {userToEndSession.Username}? (yes/no): ");
-                            string confirmation = Console.ReadLine()?.ToLower();
-                            if (confirmation == "yes")
-                            {
-                                sessionDal.EndSession(userIdToEndSession);
-                                Console.WriteLine($"Session for {userToEndSession.Username} has been ended.");
-                            }
-                            else
-                            {
-                                Console.WriteLine("Action canceled.");
-                            }
+                            database.SessionDal.EndSession(userIdToEndSession);
+                            Console.WriteLine($"Session for {userToEndSession.Username} has been ended.");
                         }
                         else
                         {
-                            Console.WriteLine("User not found.");
+                            Console.WriteLine("Action canceled.");
                         }
                     }
                     else
                     {
-                        Console.WriteLine("Invalid ID. Please enter a valid user ID.");
+                        Console.WriteLine("User not found.");
                     }
                     break;
 
 
-
                 case "9":
-                    sessionDal.EndSession(admin.UserId);
+                    database.SessionDal.EndSession(admin.UserId);
                     Console.WriteLine("Logged out");
                     return;
 
@@ -317,9 +303,7 @@ class Program
         }
     }
 
-
-
-    static void UserMenu(UserData user, IUserDal userDal, IBankDetailDal bankDetailDal, ISessionDal sessionDal)
+    private static void UserMenu(IDatabase database, UserData user)
     {
         while (true)
         {
@@ -328,61 +312,20 @@ class Program
             Console.WriteLine("2. Update profile");
             Console.WriteLine("3. Log out");
 
-            string choice = Console.ReadLine()?.Trim();
+            string? choice = Console.ReadLine();
+            if (choice == null)
+                continue;
 
             switch (choice)
             {
                 case "1":
-                    Console.WriteLine("\nYour Profile:");
-                    Console.WriteLine($"Username: {user.Username}");
-                    Console.WriteLine($"Email: {user.Email}");
-                    Console.WriteLine($"Role: {user.Role}");
-                    Console.WriteLine($"FirstName: {user.FirstName}");
-                    Console.WriteLine($"LastName: {user.LastName}");
-                    Console.WriteLine($"Gender: {user.Gender}");
-                    Console.WriteLine($"PhoneNumber: {user.PhoneNumber}");
-                    Console.WriteLine($"Address: {user.Address}");
-
-                    if (user.ProfilePicture != null && user.ProfilePicture.Length > 0)
-                    {
-                        Console.WriteLine("Profile Picture: Uploaded");
-
-                        // Додати UserId до назви файлу
-                        string outputFileName = $"ProfilePicture_UserId_{user.UserId}.jpg";
-                        string outputFilePath = Path.Combine(Environment.CurrentDirectory, outputFileName);
-
-                        // Зберегти файл
-                        File.WriteAllBytes(outputFilePath, user.ProfilePicture);
-                        Console.WriteLine($"Profile picture exported to: {outputFilePath}");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Profile Picture: Not uploaded");
-                    }
-
-
-                    // Отримати банківські дані
-                    BankDetailData bankDetails = bankDetailDal.GetBankDetailData(user.UserId);
-                    if (bankDetails != null)
-                    {
-                        Console.WriteLine("\nBank Details:");
-                        Console.WriteLine($"Card Number: {bankDetails.CardNumber}");
-                        Console.WriteLine($"Expiration Date: {bankDetails.ExpirationDate}");
-                        Console.WriteLine($"Card Holder Name: {bankDetails.CardHolderName}");
-                        Console.WriteLine($"Billing BillingAddress: {bankDetails.BillingAddress}");
-                    }
-                    else
-                    {
-                        Console.WriteLine("\nNo bank details found.");
-                    }
+                    ViewProfile(database, user);
                     break;
-
-
                 case "2":
-                    UpdateProfile(user.UserId, userDal, bankDetailDal);
+                    UpdateProfile(database, user.UserId);
                     break;
                 case "3":
-                    sessionDal.EndSession(user.UserId);
+                    database.SessionDal.EndSession(user.UserId);
                     Console.WriteLine("Logged out");
                     return;
                 default:
@@ -391,128 +334,213 @@ class Program
             }
         }
     }
-    static void UpdateProfile(int userId, IUserDal userDal, IBankDetailDal bankDetailDal)
+
+    private static void ViewProfile(IDatabase database, UserData user)
+    {
+        Console.WriteLine("\nYour Profile:");
+        Console.WriteLine($"Username: {user.Username}");
+        Console.WriteLine($"Email: {user.Email}");
+        Console.WriteLine($"Role: {user.Role}");
+        Console.WriteLine($"FirstName: {user.FirstName}");
+        Console.WriteLine($"LastName: {user.LastName}");
+        Console.WriteLine($"Gender: {user.Gender}");
+        Console.WriteLine($"PhoneNumber: {user.PhoneNumber}");
+        Console.WriteLine($"Address: {user.Address}");
+
+        if (user.ProfilePicture != null && user.ProfilePicture.Length > 0)
+        {
+            Console.WriteLine("Profile Picture: Uploaded");
+
+            // Додати UserId до назви файлу
+            string outputFileName = $"ProfilePicture_UserId_{user.UserId}.jpg";
+            string outputFilePath = Path.Combine(Environment.CurrentDirectory, outputFileName);
+
+            // Зберегти файл
+            File.WriteAllBytes(outputFilePath, user.ProfilePicture);
+            Console.WriteLine($"Profile picture exported to: {outputFilePath}");
+        }
+        else
+        {
+            Console.WriteLine("Profile Picture: Not uploaded");
+        }
+
+
+        // Отримати банківські дані
+        BankDetailData? bankDetails = database.BankDetailDal.GetBankDetailData(user.UserId);
+        if (bankDetails != null)
+        {
+            Console.WriteLine("\nBank Details:");
+            Console.WriteLine($"Card Number: {bankDetails.CardNumber}");
+            Console.WriteLine($"Expiration Date: {bankDetails.ExpirationDate}");
+            Console.WriteLine($"Card Holder Name: {bankDetails.CardHolderName}");
+            Console.WriteLine($"Billing BillingAddress: {bankDetails.BillingAddress}");
+        }
+        else
+        {
+            Console.WriteLine("\nNo bank details found.");
+        }
+    }
+
+    private static void UpdateProfile(IDatabase database, int userId)
     {
         while (true)
         {
             Console.WriteLine("Available fields to update:");
-            Console.WriteLine("1. Username\n2. Email\n3. FirstName\n4. LastName\n5. Gender\n6. PhoneNumber\n7. Address\n8. Password\n9. Profile Picture\n10. Bank Details");
+            Console.WriteLine("1. Username"); 
+            Console.WriteLine("2. Email");
+            Console.WriteLine("3. FirstName");
+            Console.WriteLine("4. LastName");
+            Console.WriteLine("5. Gender"); 
+            Console.WriteLine("6. PhoneNumber"); 
+            Console.WriteLine("7. Address"); 
+            Console.WriteLine("8. Password"); 
+            Console.WriteLine("9. Profile Picture"); 
+            Console.WriteLine("10. Bank Details");
+            
             Console.Write("Enter the field number to update or 0 to go back: ");
-            string fieldChoice = Console.ReadLine();
 
-            if (fieldChoice == "0")
+            if (!int.TryParse(Console.ReadLine(), out int fieldChoice))
+                continue;
+
+            if (fieldChoice == 0)
                 break;
 
-            string field = FieldMapping(fieldChoice);
-            if (field == "ProfilePicture")
+            UpdateProfileChoice choice = (UpdateProfileChoice)fieldChoice;
+            if (!Enum.IsDefined(choice))
             {
-                Console.WriteLine("Save your profile picture in the following directory:");
-                Console.WriteLine(Environment.CurrentDirectory);
-
-                Console.Write("Enter the file name (e.g., profile.jpg): ");
-                string fileName = Console.ReadLine()?.Trim();
-
-                // Формуємо повний шлях
-                string filePath = Path.Combine(Environment.CurrentDirectory, fileName);
-
-                // Перевірка існування файлу
-                if (!File.Exists(filePath))
-                {
-                    Console.WriteLine("File not found in the current directory. Please try again.");
-                    return;
-                }
-
-                try
-                {
-                    // Прочитати файл у байтовий масив
-                    byte[] imageData = File.ReadAllBytes(filePath);
-
-                    // Зберегти дані у базу
-                    userDal.UpdateUser("ProfilePicture", imageData, userId);
-                    Console.WriteLine("Profile picture uploaded successfully.");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error while uploading profile picture: {ex.Message}");
-                }
-
-
-            }
-            else if (field == "BankDetails")
-            {
-                Console.Write("Enter card number: ");
-                string cardNumber = Console.ReadLine();
-                if (!BankDetail.IsValidCardNumber(cardNumber))
-                {
-                    Console.WriteLine("Invalid card number. Please try again.");
-                    return; // Повертаємося до меню, якщо номер картки недійсний
-                }
-
-                Console.Write("Enter expiration date (MM/YY): ");
-                string expirationDate = Console.ReadLine();
-                if (!BankDetail.IsValidExpirationDate(expirationDate))
-                {
-                    Console.WriteLine("Invalid or expired card. Please try again.");
-                    return;
-                }
-
-                Console.Write("Enter CVV: ");
-                string cvv = Console.ReadLine();
-                if (!BankDetail.IsValidCVV(cvv))
-                {
-                    Console.WriteLine("Invalid CVV. Please try again.");
-                    return;
-                }
-
-                Console.Write("Enter card holder name: ");
-                string cardHolderName = Console.ReadLine();
-                Console.Write("Enter billing address: ");
-                string billingAddress = Console.ReadLine();
-
-                BankDetailData bankDetail = new BankDetailData
-                {
-                    UserId = userId,
-                    CardNumber = cardNumber,
-                    ExpirationDate = expirationDate,
-                    CardCVV = cvv,
-                    CardHolderName = cardHolderName,
-                    BillingAddress = billingAddress
-                };
-
-                bankDetailDal.UpdateBankDetail(bankDetail);
-                Console.WriteLine("Bank details updated successfully.");
+                Console.WriteLine("Invalid field selection.");
+                continue;
             }
 
-            else if (field != null)
+            if (choice == UpdateProfileChoice.ProfilePicture)
             {
-                Console.Write("Enter new value: ");
-                string value = Console.ReadLine();
-                userDal.UpdateUser(field, value, userId);
-                Console.WriteLine("Profile updated successfully.");
+                UpdatePicture(database, userId);
+            }
+            else if (choice == UpdateProfileChoice.BankDetails)
+            {
+                UpdateBankDetails(database, userId);
             }
             else
             {
-                Console.WriteLine("Invalid field selection.");
+                Console.Write("Enter new value: ");
+                string? value = Console.ReadLine();
+                if (value == null)
+                    continue;
+
+                database.UserDal.UpdateUser(choice.ToString(), value, userId);
+                Console.WriteLine("Profile updated successfully.");
             }
         }
     }
 
-    static string FieldMapping(string choice)
+    private enum UpdateProfileChoice
     {
-        return choice switch
+        Username = 1,
+        Email,
+        FirstName,
+        LastName,
+        Gender,
+        PhoneNumber,
+        Address,
+        Password,
+        ProfilePicture,
+        BankDetails
+    }
+
+    private static void UpdateBankDetails(IDatabase database, int userId)
+    {
+        Console.Write("Enter card number: ");
+        string? cardNumber = Console.ReadLine();
+        if (cardNumber == null)
+            return;
+
+        if (!BankDetailData.IsValidCardNumber(cardNumber))
         {
-            "1" => "Username",
-            "2" => "Email",
-            "3" => "FirstName",
-            "4" => "LastName",
-            "5" => "Gender",
-            "6" => "PhoneNumber",
-            "7" => "Address",
-            "8" => "Password",
-            "9" => "ProfilePicture",
-            "10" => "BankDetails",
-            _ => null
+            Console.WriteLine("Invalid card number. Please try again.");
+            return; // Повертаємося до меню, якщо номер картки недійсний
+        }
+
+        Console.Write("Enter expiration date (MM/YY): ");
+        string? expirationDate = Console.ReadLine();
+        if (expirationDate == null)
+            return;
+        
+        if (!BankDetailData.IsValidExpirationDate(expirationDate))
+        {
+            Console.WriteLine("Invalid or expired card. Please try again.");
+            return;
+        }
+
+        Console.Write("Enter CVV: ");
+        string? cvv = Console.ReadLine();
+        if (cvv == null)
+            return;
+
+        if (!BankDetailData.IsValidCVV(cvv))
+        {
+            Console.WriteLine("Invalid CVV. Please try again.");
+            return;
+        }
+
+        Console.Write("Enter card holder name: ");
+        string? cardHolderName = Console.ReadLine();
+        if (cardHolderName == null)
+            return;
+
+        Console.Write("Enter billing address: ");
+        string? billingAddress = Console.ReadLine();
+        if (billingAddress == null)
+            return;
+
+        BankDetailData bankDetail = new BankDetailData
+        {
+            UserId = userId,
+            CardNumber = cardNumber,
+            ExpirationDate = expirationDate,
+            CardCVV = cvv,
+            CardHolderName = cardHolderName,
+            BillingAddress = billingAddress
         };
+
+        database.BankDetailDal.UpdateBankDetail(bankDetail);
+        Console.WriteLine("Bank details updated successfully.");
+    }
+
+    private static void UpdatePicture(IDatabase database, int userId)
+    {
+        Console.WriteLine("Save your profile picture in the following directory:");
+        Console.WriteLine(Environment.CurrentDirectory);
+
+        Console.Write("Enter the file name (e.g., profile.jpg): ");
+        string? fileName = Console.ReadLine();
+
+        if (fileName == null)
+            return;
+
+        // Формуємо повний шлях
+        string filePath = Path.Combine(Environment.CurrentDirectory, fileName);
+
+        // Перевірка існування файлу
+        if (!File.Exists(filePath))
+        {
+            Console.WriteLine("File not found in the current directory. Please try again.");
+            return;
+        }
+
+        try
+        {
+            // Прочитати файл у байтовий масив
+            byte[] imageData = File.ReadAllBytes(filePath);
+
+            // Зберегти дані у базу
+            database.UserDal.UpdateUser("ProfilePicture", imageData, userId);
+            Console.WriteLine("Profile picture uploaded successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error while uploading profile picture: {ex.Message}");
+        }
+
     }
 }
 

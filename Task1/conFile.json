@@ -1,5 +1,0 @@
-{
-  "ConnectionStrings": {
-    "Task1": "Server=DESKTOP-KF96CSK\\MSSQLSERVER01;Database=AllRegisteredUser_PZ;Integrated Security=True;"
-  }
-}

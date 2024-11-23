@@ -7,7 +7,7 @@ namespace DAL.Interface
 {
     public interface ISessionDal
     {
-        public List<(int UserId, string Username, string Status, DateTime? LoginTime, DateTime? LogoutTime)> GetUserSessions();
+        public List<SessionData> GetUserSessions();
 
         public void StartSession(int userId);
         public void EndSession(int userId);

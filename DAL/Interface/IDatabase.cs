@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DAL.Interface
+﻿namespace DAL.Interface
 {
     public interface IDatabase
     {
-        IUserDal GetUserDal();
-        IBankDetailDal GetBankDetailDal();
-        ISessionDal GetSessionDal();
+        public IUserDal UserDal { get; }
+        public IBankDetailDal BankDetailDal { get; }
+        public ISessionDal SessionDal { get; }
 
     }
 }
