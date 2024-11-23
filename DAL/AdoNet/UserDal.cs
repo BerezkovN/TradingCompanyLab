@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Data.SqlTypes;
 using DAL.Interface;
 using DTO;
 
@@ -69,7 +70,7 @@ namespace DAL.AdoNet
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Помилка авторизації користувача: {ex.Message}");
+                throw new InvalidOperationException($"Error when logging in: {ex.Message}");
             }
 
             return user;
@@ -93,7 +94,7 @@ namespace DAL.AdoNet
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Помилка оновлення користувача: {ex.Message}");
+                throw new InvalidOperationException($"Error when updating a user: {ex.Message}");
             }
         }
 
@@ -121,7 +122,7 @@ namespace DAL.AdoNet
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Помилка видалення користувача: {ex.Message}");
+                throw new InvalidOperationException($"Error when deleting a user: {ex.Message}");
             }
         }
 
@@ -160,7 +161,7 @@ namespace DAL.AdoNet
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("Помилка отримання списку користувачів: {ex.Message}");
+                throw new InvalidOperationException("Error when getting all users: {ex.Message}");
             }
 
             return users;
@@ -198,7 +199,7 @@ namespace DAL.AdoNet
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Помилка при зчитуванні користувача: {ex.Message}");
+                throw new InvalidOperationException($"Error when getting a user: {ex.Message}");
             }
 
             // Повертаємо null, якщо користувача не знайдено
@@ -230,14 +231,14 @@ namespace DAL.AdoNet
                         Gender = reader.IsDBNull(6) ? null : reader.GetString(6),
                         PhoneNumber = reader.IsDBNull(7) ? null : reader.GetString(7),
                         Address = reader.IsDBNull(8) ? null : reader.GetString(8),
-                        ProfilePicture = reader.IsDBNull(9) ? null : (byte[])reader[9],
+                        ProfilePicture = reader.IsDBNull(9) ? null : (byte[])reader.GetSqlBytes(9).Buffer,
                         RecoveryKey = reader.IsDBNull(10) ? null : reader.GetString(10)
                     };
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Помилка зчитування користувача по імені: {ex.Message}");
+                Console.WriteLine($"Error when getting a user by username: {ex.Message}");
                 throw;
             }
 

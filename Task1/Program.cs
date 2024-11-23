@@ -15,6 +15,19 @@ class Program
     private static void Main(string[] args)
     {
 
+        try
+        {
+            Start();
+        }
+        finally
+        {
+            Console.WriteLine("Exiting"); 
+        }
+    }
+
+    private static void Start()
+    {
+
         Console.WriteLine("Welcome to the system!");
 
         var configuration = new ConfigurationBuilder()
@@ -60,7 +73,6 @@ class Program
                     break;
             }
         }
-
     }
 
     private static void LogIn(IDatabase database)
@@ -184,7 +196,7 @@ class Program
                         UserData detailedUser = database.UserDal.GetUser(detailedUserId);
                         if (detailedUser != null)
                         {
-                            ViewProfile(database, admin);
+                            ViewProfile(database, detailedUser);
                         }
                         else
                         {

@@ -48,8 +48,7 @@ namespace DAL.AdoNet
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Помилка при отриманні банківських даних: {ex.Message}");
-                throw;
+                throw new InvalidOperationException($"Error when getting bank detail data: {ex.Message}");
             }
 
             return null;
@@ -62,7 +61,9 @@ namespace DAL.AdoNet
             {
                 using SqlConnection connection = new SqlConnection(_connectionString);
                 using SqlCommand command = connection.CreateCommand();
-                
+
+                connection.Open();
+               
                 command.CommandText = 
                     @"UPDATE BankDetailsTBL 
                       SET CardNumber = @CardNumber, ExpirationDate = @ExpirationDate, CardCVV = @CardCVV, CardHolderName = @CardHolderName, BillingAddress = @BillingAddress
@@ -79,8 +80,7 @@ namespace DAL.AdoNet
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Помилка при оновленні банківських даних: {ex.Message}");
-                throw;
+                throw new InvalidOperationException($"Error updating bank details: {ex.Message}");
             }
         }
        

@@ -11,10 +11,5 @@ namespace DAL.Interface
 
         public void StartSession(int userId);
         public void EndSession(int userId);
-
-
-
-
-
     }
 }

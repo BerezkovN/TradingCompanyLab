@@ -6,7 +6,7 @@
 
         public string Status{ get; set; }
 
-        public DateTime LoginTime { get; set; }
+        public DateTime? LoginTime { get; set; }
 
         public DateTime? LogoutTime { get; set; }
 

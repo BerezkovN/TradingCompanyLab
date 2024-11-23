@@ -90,14 +90,14 @@ namespace DAL.AdoNet
                     sessions.Add(new SessionData {
                         UserId = reader.GetInt32(0),
                         Status = reader.GetString(1),
-                        LoginTime = reader.GetDateTime(2),
+                        LoginTime = reader.IsDBNull(3) ? (DateTime?)null : reader.GetDateTime(2),
                         LogoutTime = reader.IsDBNull(3) ? (DateTime?)null : reader.GetDateTime(3)
                     });
                 }
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Помилка зчитування сесії: {ex.Message}");
+                throw new InvalidOperationException($"Error when getting all user sessions: {ex.Message}");
             }
 
             return sessions;
@@ -132,7 +132,7 @@ namespace DAL.AdoNet
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException($"Помилка отримання сесій: {ex.Message}");
+                throw new InvalidOperationException($"Error when getting a user's sessions: {ex.Message}");
             }
 
             return sessions;
