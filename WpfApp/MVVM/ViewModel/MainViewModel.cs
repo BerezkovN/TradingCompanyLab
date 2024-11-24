@@ -1,29 +1,40 @@
-﻿using WpfApp.MVVM.Core;
+﻿using BusinessLogic;
+using WpfApp.MVVM.Core;
 
 namespace WpfApp.MVVM.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
 
+        private readonly TradingCompany _tradingCompany;
+
         private readonly LoginViewModel _loginViewMode;
         private readonly UserViewModel _userViewModel;
+        private readonly RecoverPasswordViewModel _recoverPasswordViewModel;
 
         private ViewModelBase _currentViewModel;
 
-        public ViewModelBase CurrentViewModel {
+        public MainViewModel()
+        {
+            _tradingCompany = new TradingCompany();
+
+            _loginViewMode = new LoginViewModel(this);
+            _userViewModel = new UserViewModel(this);
+            _recoverPasswordViewModel = new RecoverPasswordViewModel(this);
+
+            this.Navigate(Pages.Login);
+        }
+
+        public TradingCompany TradingCompany => _tradingCompany;
+
+        public ViewModelBase CurrentViewModel
+        {
             get => _currentViewModel;
-            set {
+            set
+            {
                 _currentViewModel = value;
                 OnPropertyChange();
             }
-        }
-
-        public MainViewModel()
-        {
-            _loginViewMode = new LoginViewModel(this);
-            _userViewModel = new UserViewModel(this);
-
-            this.Navigate(Pages.Login);
         }
 
 
@@ -36,6 +47,9 @@ namespace WpfApp.MVVM.ViewModel
             {
                 case Pages.Login:
                     navigatedViewModel = _loginViewMode;
+                    break;
+                case Pages.RecoverPassword:
+                    navigatedViewModel = _recoverPasswordViewModel;
                     break;
                 case Pages.UserMenu:
                     navigatedViewModel = _userViewModel;
@@ -55,6 +69,7 @@ namespace WpfApp.MVVM.ViewModel
         public enum Pages
         {
             Login,
+            RecoverPassword,
             UserMenu,
             AdminMenu
         }

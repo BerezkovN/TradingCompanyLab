@@ -69,18 +69,7 @@ namespace DAL.AdoNet
                 using SqlConnection connection = new SqlConnection(_connectionString);
                 
                 using SqlCommand command = connection.CreateCommand();
-                command.CommandText = @"
-                SELECT 
-                    UsersTBL.Id, 
-                    SessionsTBL.Status, 
-                    SessionsTBL.LoginTime, 
-                    SessionsTBL.LogoutTime
-                FROM 
-                    UsersTBL
-                LEFT JOIN 
-                    SessionsTBL 
-                ON 
-                    UsersTBL.Id = SessionsTBL.UserId";
+                command.CommandText = @"SELECT * FROM SessionsTBL";
 
                 connection.Open();
 
