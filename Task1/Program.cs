@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using DTO;
-using DAL.Interface;
-using DAL.AdoNet;
 using System.Data.SqlClient;
 using System.IO;
 using Microsoft.Extensions.Configuration;
