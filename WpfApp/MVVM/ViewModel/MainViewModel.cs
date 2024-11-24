@@ -6,14 +6,12 @@ namespace WpfApp.MVVM.ViewModel
     {
 
         private readonly Navigator _navigator;
-
         private ViewModelBase _currentViewModel;
+
 
         public ViewModelBase CurrentViewModel {
             get => _currentViewModel;
-            set
-            {
-                
+            set {
                 _currentViewModel = value;
                 OnPropertyChange();
             }

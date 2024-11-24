@@ -17,9 +17,7 @@ namespace WpfApp.MVVM.ViewModel
 
         private void Login(object? o)
         {
-            MessageBox.Show("funny");
-            _navigator
-            _mainViewModel.CurrentViewModel = new UserViewModel(_mainViewModel);
+            _navigator.Navigate(Navigator.Pages.UserMenu);
         }
     }
 }
