@@ -5,11 +5,11 @@ namespace WpfApp.MVVM.ViewModel
     public class UserViewModel : ViewModelBase
     {
         
-        private readonly Navigator _navigator;
+        private readonly MainViewModel _mainViewModel;
 
-        public UserViewModel(Navigator navigator)
+        public UserViewModel(MainViewModel mainViewModel)
         {
-            _navigator = navigator;
+            _mainViewModel = mainViewModel;
         }
 
     }

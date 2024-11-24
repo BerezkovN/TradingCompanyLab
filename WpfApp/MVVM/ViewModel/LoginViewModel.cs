@@ -7,17 +7,17 @@ namespace WpfApp.MVVM.ViewModel
     {
         public RelayCommand LoginCommand => new RelayCommand(Login);
 
-        private readonly Navigator _navigator;
+        private readonly MainViewModel _mainViewModel;
 
-        public LoginViewModel(Navigator navigator)
+        public LoginViewModel(MainViewModel mainViewModel)
         {
-            _navigator = navigator;
+            _mainViewModel = mainViewModel;
         }
 
 
         private void Login(object? o)
         {
-            _navigator.Navigate(Navigator.Pages.UserMenu);
+            _mainViewModel.Navigate(MainViewModel.Pages.UserMenu);
         }
     }
 }
