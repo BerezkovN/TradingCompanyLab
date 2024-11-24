@@ -7,6 +7,86 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top">
+
+            <Image Width="150" Height="150" Source="{Binding UserProfile}"/>
+
+            <Grid>
+                <Label HorizontalAlignment="Left" Content="{Binding Username}"/>
+                <Label HorizontalAlignment="Right" Content="{Binding Role}"/>
+            </Grid>
+
+            <Button Content="Logout" Width="92"
+                    Margin="10"
+                    Command="{Binding LogoutCommand}"/>
+
+            <Button Content="{Binding EditOrUpdate}" 
+                    Width="92" Height="20"
+                    Margin="10"
+                    Command="{Binding EditOrUpdateCommand}"/>
+
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+            <StackPanel>
+                <Label Content="Email"/>
+                <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
+                         Text="{Binding Email}" VerticalAlignment="Top" 
+                         Height="20" Width="250"
+                         IsReadOnly="True"/>
+            </StackPanel>
+
+            <StackPanel>
+                <Label Content="First name"/>
+                <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
+                         Text="{Binding FirstName}" VerticalAlignment="Top" 
+                         Height="20" Width="250"
+                         IsReadOnly="True"/>
+            </StackPanel>
             
+            <StackPanel>
+                <Label Content="Last name"/>
+                <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
+                         Text="{Binding LastName}" VerticalAlignment="Top" 
+                         Height="20" Width="250"
+                         IsReadOnly="True"/>
+            </StackPanel>
+
+        </StackPanel>
+        
+        <StackPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+            <StackPanel>
+                <Label Content="Gender"/>
+                <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
+                         Text="{Binding Gender}" VerticalAlignment="Top" 
+                         Height="20" Width="250"
+                         IsReadOnly="True"/>
+            </StackPanel>
+
+            <StackPanel>
+                <Label Content="Phone number"/>
+                <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
+                         Text="{Binding PhoneNumber}" VerticalAlignment="Top" 
+                         Height="20" Width="250"
+                         IsReadOnly="True"/>
+            </StackPanel>
+            
+            <StackPanel>
+                <Label Content="Address"/>
+                <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
+                         Text="{Binding Adress}" VerticalAlignment="Top" 
+                         Height="20" Width="250"
+                         IsReadOnly="True"/>
+            </StackPanel>
+
+        </StackPanel>
     </Grid>
 </UserControl>

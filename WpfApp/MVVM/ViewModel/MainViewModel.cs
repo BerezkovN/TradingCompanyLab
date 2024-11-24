@@ -52,6 +52,7 @@ namespace WpfApp.MVVM.ViewModel
                     navigatedViewModel = _recoverPasswordViewModel;
                     break;
                 case Pages.UserMenu:
+                    _userViewModel.OnNavigate();
                     navigatedViewModel = _userViewModel;
                     break;
                 case Pages.AdminMenu:

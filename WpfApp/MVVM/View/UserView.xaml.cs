@@ -15,9 +15,6 @@ using System.Windows.Shapes;
 
 namespace WpfApp.MVVM.View
 {
-    /// <summary>
-    /// Interaction logic for UserView.xaml
-    /// </summary>
     public partial class UserView : UserControl
     {
         public UserView()

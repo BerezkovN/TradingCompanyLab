@@ -43,7 +43,7 @@ namespace WpfApp.MVVM.ViewModel
             }
 
             MessageBoxResult Result = MessageBox.Show(
-                "Invalid username or password", "Would you like to reset password?", 
+                "Would you like to reset password?", "Invalid username or password", 
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
 
             if (Result == MessageBoxResult.Yes)
