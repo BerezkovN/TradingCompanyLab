@@ -4,6 +4,9 @@ namespace WpfApp.MVVM.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
+
+        private readonly Navigator _navigator;
+
         private ViewModelBase _currentViewModel;
 
         public ViewModelBase CurrentViewModel {
@@ -16,9 +19,9 @@ namespace WpfApp.MVVM.ViewModel
             }
         }
 
-        public MainViewModel(MainWindow mainWindow)
+        public MainViewModel(Navigator navigator)
         {
-            CurrentViewModel = new LoginViewModel(this);
+            _navigator = navigator;
         }
     }
 }

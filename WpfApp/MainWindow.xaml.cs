@@ -5,12 +5,13 @@ namespace WpfApp
 {
     public partial class MainWindow : Window
     {
+        private readonly Navigator _navigator;
+        
         public MainWindow()
         {
             InitializeComponent();
 
-            MainViewModel vm = new MainViewModel();
-            DataContext = vm;
+            _navigator = new Navigator(this);
         }
     }
 }

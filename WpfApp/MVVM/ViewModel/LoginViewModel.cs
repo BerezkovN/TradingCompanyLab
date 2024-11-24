@@ -5,19 +5,20 @@ namespace WpfApp.MVVM.ViewModel
 {
     public class LoginViewModel : ViewModelBase
     {
-        RelayCommand LoginCommand => new RelayCommand(Login);
+        public RelayCommand LoginCommand => new RelayCommand(Login);
 
-        private MainViewModel _mainViewModel;
+        private readonly Navigator _navigator;
 
-        public LoginViewModel(MainViewModel mainViewModel)
+        public LoginViewModel(Navigator navigator)
         {
-            _mainViewModel = mainViewModel;
+            _navigator = navigator;
         }
 
 
         private void Login(object? o)
         {
             MessageBox.Show("funny");
+            _navigator
             _mainViewModel.CurrentViewModel = new UserViewModel(_mainViewModel);
         }
     }

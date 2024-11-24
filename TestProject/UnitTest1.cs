@@ -30,33 +30,3 @@ namespace TestProject
         }
     }
 }
-
-
-
-
-/*private SqlConnection _connection;
-        private User _user;
-
-        [TestInitialize]
-        public void Setup()
-        {
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(AppContext.BaseDirectory)
-                .AddJsonFile("conFile.json")
-                .Build();
-
-            string connectionString = configuration.GetConnectionString("Tests");
-            _connection = new SqlConnection(connectionString);
-            _user = new User(_connection);
-        }
-        [TestMethod]
-        public void GetUserByUsername_ShouldReturnUser_WhenUserExists()
-        {
-
-            var userUsername = "john_doe";
-
-            var user = _user.GetUserByUsername(userUsername);
-
-            Assert.IsNotNull(user);
-            //Assert.AreEqual(userUsername, user.Username);
-        }*/
