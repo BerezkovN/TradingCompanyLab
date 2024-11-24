@@ -1,0 +1,6 @@
+{
+  "ConnectionStrings": {
+    "SqlServer": "Server=DESKTOP-KF96CSK\\MSSQLSERVER01;Database=AllRegisteredUser_PZ;Integrated Security=True;",
+    "TestServer": "Server=DESKTOP-KF96CSK\\MSSQLSERVER01;Database=TestDatabase;Integrated Security=True;"
+  }
+}

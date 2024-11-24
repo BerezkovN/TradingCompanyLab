@@ -19,7 +19,7 @@ class Program
     private static void Start()
     {
 
-        TradingCompany company = new TradingCompany();
+        TradingCompany company = new TradingCompany("SqlServer");
 
         Console.WriteLine("Welcome to the system!");
 

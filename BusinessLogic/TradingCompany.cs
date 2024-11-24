@@ -14,14 +14,14 @@ namespace BusinessLogic
         public IDatabase Database => _database;
         public User? LoggedInUser => _loggedInUser;
 
-        public TradingCompany() 
+        public TradingCompany(string projectName)
         {
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("config.json")
                 .Build();
 
-            string? connectionString = configuration.GetConnectionString("SqlServer");
+            string? connectionString = configuration.GetConnectionString(projectName);
             if (connectionString == null)
             {
                 throw new InvalidOperationException("Could not find config.json");
@@ -41,7 +41,7 @@ namespace BusinessLogic
 
             // Створення сесії після успішного входу
             _database.SessionDal.StartSession(userData.UserId);
-           
+
             _loggedInUser = new User(userData);
 
             return _loggedInUser;
@@ -114,6 +114,16 @@ namespace BusinessLogic
         public void EndUserSession(User user)
         {
             _database.SessionDal.EndSession(user.Data.UserId);
+        }
+        public void LogOut()
+        {
+            if (_loggedInUser == null)
+            {
+                return;
+            }
+            EndUserSession(_loggedInUser);
+            _loggedInUser = null;
+
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using DAL.Interface;
@@ -206,43 +207,34 @@ namespace DAL.AdoNet
             return null; 
         }
 
-        public UserData? GetUserByUsername(string username)
-        {
+       
+        public void CreateUser(string username, string email, string password, string recoveryKey)
+        { 
             try
             {
                 using SqlConnection connection = new SqlConnection(_connectionString);
                 using SqlCommand command = connection.CreateCommand();
-                command.CommandText = "SELECT Id, Username, Email, Role, FirstName, LastName, Gender, PhoneNumber, Address, ProfilePicture, RecoveryKey FROM UsersTBL WHERE Username = @Username";
-                command.Parameters.AddWithValue("@Username", username);
+
+                command.CommandText = @"INSERT INTO UsersTBL (Username, Email, Password, RecoveryKey, Role, CreatedAt)
+                                              VALUES (@Username, @Email, @Password, @RecoveryKey, @Role, @CreatedAt)";
+
+                        command.Parameters.AddWithValue("@Username", username);
+                        command.Parameters.AddWithValue("@Email", email);
+                        command.Parameters.AddWithValue("@Password", password);
+                        command.Parameters.AddWithValue("@RecoveryKey", recoveryKey);
+                        command.Parameters.AddWithValue("@Role", "User");
+                        command.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
 
                 connection.Open();
 
-                using SqlDataReader reader = command.ExecuteReader();
-                if (reader.Read())
-                {
-                    return new UserData
-                    {
-                        UserId = reader.GetInt32(0),
-                        Username = reader.GetString(1),
-                        Email = reader.IsDBNull(2) ? null : reader.GetString(2),
-                        Role = reader.GetString(3),
-                        FirstName = reader.IsDBNull(4) ? null : reader.GetString(4),
-                        LastName = reader.IsDBNull(5) ? null : reader.GetString(5),
-                        Gender = reader.IsDBNull(6) ? null : reader.GetString(6),
-                        PhoneNumber = reader.IsDBNull(7) ? null : reader.GetString(7),
-                        Address = reader.IsDBNull(8) ? null : reader.GetString(8),
-                        ProfilePicture = reader.IsDBNull(9) ? null : (byte[])reader.GetSqlBytes(9).Buffer,
-                        RecoveryKey = reader.IsDBNull(10) ? null : reader.GetString(10)
-                    };
-                }
+                command.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error when getting a user by username: {ex.Message}");
+                Console.WriteLine($"Error when create user: {ex.Message}");
                 throw;
             }
-
-            return null; // Повертаємо null, якщо користувача не знайдено
+            
         }
 
     }
