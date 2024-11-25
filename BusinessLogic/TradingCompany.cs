@@ -96,6 +96,7 @@ namespace BusinessLogic
             this.UpdateUser(user, nameof(user.Data.Gender), user.Data.Gender);
             this.UpdateUser(user, nameof(user.Data.PhoneNumber), user.Data.PhoneNumber);
             this.UpdateUser(user, nameof(user.Data.Address), user.Data.Address);
+            this.UpdateUser(user, nameof(user.Data.ProfilePicture), user.Data.ProfilePicture);
 
             this.UpdateBankDetail(user.BankDetailData);
         }

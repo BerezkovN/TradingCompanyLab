@@ -16,9 +16,6 @@ namespace WpfApp.MVVM.ViewModel
         private readonly User _loggedInUser;
         private readonly BankDetailData _bankDetailData;
 
-        private bool _isEditing = false;
-
-
         private BitmapImage _userProfile;
         public BitmapImage UserProfile
         {
@@ -190,19 +187,21 @@ namespace WpfApp.MVVM.ViewModel
 
         public RelayCommand LogoutCommand => new RelayCommand(Logout);
         public RelayCommand EditOrUpdateCommand => new RelayCommand(EditOrUpdate);
-        public RelayCommand AddCardCommand => new RelayCommand(AddCard, (o) => _isEditing);
+        public RelayCommand AddCardCommand => new RelayCommand(AddCard, (o) => !_isNotEditing);
+        public RelayCommand UploadPictureCommand => new RelayCommand(UploadPicture, (o) => !_isNotEditing);
 
         public UserViewModel(MainViewModel mainViewModel)
         {
             _mainViewModel = mainViewModel;
             _loggedInUser = _mainViewModel.TradingCompany.LoggedInUser;
 
-            _bankDetailData = _bankDetailData == null 
+            if (_loggedInUser == null)
+                throw new InvalidOperationException("Not logged in");
+
+            _bankDetailData = _loggedInUser.BankDetailData == null 
                 ? new BankDetailData()
                 : _loggedInUser.BankDetailData;
 
-            if (_loggedInUser == null)
-                throw new InvalidOperationException("Not logged in");
 
             IsNotEditing = true;
             EditOrUpdateContent = "Edit";
@@ -269,22 +268,49 @@ namespace WpfApp.MVVM.ViewModel
             if (user == null) 
                 return;
 
-            _isEditing = !_isEditing;
+            IsNotEditing = !IsNotEditing;
             OnPropertyChange(nameof(AddCardCommand));
+            OnPropertyChange(nameof(UploadPictureCommand));
 
-            if (_isEditing)
+            if (!IsNotEditing)
             {
-                IsNotEditing = false;
                 EditOrUpdateContent = "Update";
             }
             else
             {
-                IsNotEditing = true;
                 EditOrUpdateContent = "Edit";
 
                 _bankDetailData.UserId = user.Data.UserId;
                 user.BankDetailData = _bankDetailData;
                 _mainViewModel.TradingCompany.UpdateUser(user);
+            }
+        }
+
+        private void UploadPicture(object? o)
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog();
+            dialog.DefaultExt = ".png";
+            dialog.Filter = "Images (.png)|*.png";
+
+            bool? result = dialog.ShowDialog();
+
+            if (result != true)
+            {
+                return;
+            }
+
+            try
+            {
+
+                string filename = dialog.FileName;
+                byte[] bytes = File.ReadAllBytes(filename);
+
+                UserProfile = LoadImageFromBytes(bytes);
+                _loggedInUser.Data.ProfilePicture = bytes;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error reading the file: {ex.Message}");
             }
         }
 

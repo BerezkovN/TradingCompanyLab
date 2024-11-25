@@ -30,6 +30,11 @@
                     Width="92" Height="20"
                     Margin="10"
                     Command="{Binding EditOrUpdateCommand}"/>
+            
+            <Button Content="Upload picture" 
+                    Width="92" Height="20"
+                    Margin="10"
+                    Command="{Binding UploadPictureCommand}"/>
 
         </StackPanel>
 
