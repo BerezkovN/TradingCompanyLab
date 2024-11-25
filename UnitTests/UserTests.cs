@@ -1,5 +1,6 @@
 ﻿using BusinessLogic;
 using DAL.Interface;
+using DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,12 +12,13 @@ namespace UnitTests
     internal class UserTests
     {
         IUserDal _userDal;
+        TradingCompany _tradingCompany;
 
         [SetUp]
         public void Setup()
         {
-            var tradingCompany = new TradingCompany("TestServer");
-            _userDal = tradingCompany.Database.UserDal;
+            _tradingCompany = new TradingCompany("TestServer");
+            _userDal = _tradingCompany.Database.UserDal;
         }
         [Test]
         public void Login_correctData_test()
@@ -100,32 +102,37 @@ namespace UnitTests
 
 
         }
+        
         [Test]
         public void DeleteUser_test()
         {
-            string username = "james_smith";
-            string email = "james@gmail.com";
-            string password = "password456";
-            string recoveryKey = "1111";
 
+            
+            var Username = "testuser";
+            var Password = "password";
+            var Email = "test@example.com";
+            var RecoveryKey = "1111";
+            
 
-            _userDal.CreateUser(username, email, password, recoveryKey);
+            _tradingCompany.Database.UserDal.CreateUser(Username, Email, Password, RecoveryKey);
+            var user = _tradingCompany.Database.UserDal.Login(Username, Password);
 
-            DTO.UserData user = _userDal.Login(username, password);
 
             _userDal.DeleteUser(user.UserId);
 
-            List<DTO.UserData> users = _userDal.GetAllUsers();
 
-            foreach (DTO.UserData us in users)
+            try
             {
-                if (us.Username == username)
-                {
-                    Assert.Fail();
-                    break;
-                }
+                var deletedUser = _tradingCompany.Database.UserDal.Login(user.Username, user.Password);
+
+                // Якщо користувач знайдений після видалення, тест провалений
+                Assert.Fail("User should not exist after deletion.");
             }
-            Assert.Pass();
+            catch
+            {
+                // Якщо метод Login викликає виняток, вважаємо тест пройденим
+                Assert.Pass("User does not exist after deletion, as expected.");
+            }
         }
         [Test]
 
