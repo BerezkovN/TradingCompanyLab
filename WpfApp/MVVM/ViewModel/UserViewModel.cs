@@ -269,8 +269,6 @@ namespace WpfApp.MVVM.ViewModel
                 return;
 
             IsNotEditing = !IsNotEditing;
-            OnPropertyChange(nameof(AddCardCommand));
-            OnPropertyChange(nameof(UploadPictureCommand));
 
             if (!IsNotEditing)
             {
@@ -278,33 +276,36 @@ namespace WpfApp.MVVM.ViewModel
             }
             else
             {
-                EditOrUpdateContent = "Edit";
-
-                if (BankDetailData.IsValidCardNumber(_bankDetailData.CardNumber))
+                if (!BankDetailData.IsValidCardNumber(_bankDetailData.CardNumber))
                 {
                     MessageBox.Show("Invalid card number");
                     IsNotEditing = false;
                     return;
                 }
 
-                if (BankDetailData.IsValidExpirationDate(_bankDetailData.ExpirationDate))
+                if (!BankDetailData.IsValidExpirationDate(_bankDetailData.ExpirationDate))
                 {
                     MessageBox.Show("Invalid expiration date");
                     IsNotEditing = false;
                     return;
                 }
 
-                if (BankDetailData.IsValidCVV(_bankDetailData.CardCVV))
+                if (!BankDetailData.IsValidCVV(_bankDetailData.CardCVV))
                 {
                     MessageBox.Show("Invalid CVV");
                     IsNotEditing = false;
                     return;
                 }
 
+                EditOrUpdateContent = "Edit";
+
                 _bankDetailData.UserId = user.Data.UserId;
                 user.BankDetailData = _bankDetailData;
                 _mainViewModel.TradingCompany.UpdateUser(user);
             }
+
+            OnPropertyChange(nameof(AddCardCommand));
+            OnPropertyChange(nameof(UploadPictureCommand));
         }
 
         private void UploadPicture(object? o)
