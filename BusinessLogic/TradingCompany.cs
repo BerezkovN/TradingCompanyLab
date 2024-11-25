@@ -122,6 +122,9 @@ namespace BusinessLogic
 
         public void UpdateBankDetail(BankDetailData data)
         {
+            if (data == null)
+                return;
+
             _database.BankDetailDal.UpdateBankDetail(data);
         }
 
