@@ -280,6 +280,27 @@ namespace WpfApp.MVVM.ViewModel
             {
                 EditOrUpdateContent = "Edit";
 
+                if (BankDetailData.IsValidCardNumber(_bankDetailData.CardNumber))
+                {
+                    MessageBox.Show("Invalid card number");
+                    IsNotEditing = false;
+                    return;
+                }
+
+                if (BankDetailData.IsValidExpirationDate(_bankDetailData.ExpirationDate))
+                {
+                    MessageBox.Show("Invalid expiration date");
+                    IsNotEditing = false;
+                    return;
+                }
+
+                if (BankDetailData.IsValidCVV(_bankDetailData.CardCVV))
+                {
+                    MessageBox.Show("Invalid CVV");
+                    IsNotEditing = false;
+                    return;
+                }
+
                 _bankDetailData.UserId = user.Data.UserId;
                 user.BankDetailData = _bankDetailData;
                 _mainViewModel.TradingCompany.UpdateUser(user);
@@ -301,7 +322,6 @@ namespace WpfApp.MVVM.ViewModel
 
             try
             {
-
                 string filename = dialog.FileName;
                 byte[] bytes = File.ReadAllBytes(filename);
 

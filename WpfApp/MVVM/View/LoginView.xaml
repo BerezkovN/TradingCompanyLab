@@ -17,7 +17,7 @@
                     
                     <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
                             Text="{Binding Username}" VerticalAlignment="Top" 
-                            Height="20" Width="120"/>
+                            Width="120"/>
 
                 </StackPanel>
 
@@ -26,7 +26,7 @@
 
                     <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
                            Text="{Binding Password}" VerticalAlignment="Top" 
-                           Height="20" Width="120"/>
+                           Width="120"/>
 
                 </StackPanel>
 

@@ -27,12 +27,11 @@
                     Command="{Binding LogoutCommand}"/>
 
             <Button Content="{Binding EditOrUpdateContent}" 
-                    Width="92" Height="20"
+                    Width="92"
                     Margin="10"
                     Command="{Binding EditOrUpdateCommand}"/>
             
             <Button Content="Upload picture" 
-                    Width="92" Height="20"
                     Margin="10"
                     Command="{Binding UploadPictureCommand}"/>
 
@@ -44,7 +43,7 @@
                 <Label Content="Email"/>
                 <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
                          Text="{Binding Email}" VerticalAlignment="Top" 
-                         Height="20" Width="250"
+                         Width="250"
                          IsReadOnly="{Binding IsNotEditing}"/>
             </StackPanel>
 
@@ -52,7 +51,7 @@
                 <Label Content="First name"/>
                 <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
                          Text="{Binding FirstName}" VerticalAlignment="Top" 
-                         Height="20" Width="250"
+                         Width="250"
                          IsReadOnly="{Binding IsNotEditing}"/>
             </StackPanel>
             
@@ -60,7 +59,7 @@
                 <Label Content="Last name"/>
                 <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
                          Text="{Binding LastName}" VerticalAlignment="Top" 
-                         Height="20" Width="250"
+                         Width="250"
                          IsReadOnly="{Binding IsNotEditing}"/>
             </StackPanel>
 
@@ -68,7 +67,7 @@
               <Label Content="Gender"/>
               <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
                        Text="{Binding Gender}" VerticalAlignment="Top" 
-                       Height="20" Width="250"
+                       Width="250"
                        IsReadOnly="{Binding IsNotEditing}"/>
             </StackPanel>
 
@@ -76,7 +75,7 @@
             <Label Content="Phone number"/>
             <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
                      Text="{Binding PhoneNumber}" VerticalAlignment="Top" 
-                     Height="20" Width="250"
+                     Width="250"
                      IsReadOnly="{Binding IsNotEditing}"/>
           </StackPanel>
 
@@ -84,7 +83,7 @@
             <Label Content="Address"/>
             <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
                      Text="{Binding Address}" VerticalAlignment="Top" 
-                     Height="20" Width="250"
+                     Width="250"
                      IsReadOnly="{Binding IsNotEditing}"/>
           </StackPanel>
 
@@ -96,7 +95,7 @@
                 <Label Content="Card number" Visibility="{Binding CardInfoVisibility}"/>
                 <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
                          Text="{Binding CardNumber}" VerticalAlignment="Top" 
-                         Height="20" Width="250"
+                         Width="250"
                          IsReadOnly="{Binding IsNotEditing}"
                          Visibility="{Binding CardInfoVisibility}"/>
             </StackPanel>
@@ -105,7 +104,7 @@
                 <Label Content="Expiration date" Visibility="{Binding CardInfoVisibility}"/>
                 <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
                          Text="{Binding ExpirationDate}" VerticalAlignment="Top" 
-                         Height="20" Width="250"
+                         Width="250"
                          IsReadOnly="{Binding IsNotEditing}"
                          Visibility="{Binding CardInfoVisibility}"/>
             </StackPanel>
@@ -114,7 +113,7 @@
                 <Label Content="Card CVV" Visibility="{Binding CardInfoVisibility}"/>
                 <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
                          Text="{Binding CardCVV}" VerticalAlignment="Top" 
-                         Height="20" Width="250"
+                         Width="250"
                          IsReadOnly="{Binding IsNotEditing}"
                          Visibility="{Binding CardInfoVisibility}"/>
             </StackPanel>
@@ -123,7 +122,7 @@
                 <Label Content="Cardholder name" Visibility="{Binding CardInfoVisibility}"/>
                 <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
                          Text="{Binding CardholderName}" VerticalAlignment="Top" 
-                         Height="20" Width="250"
+                         Width="250"
                          IsReadOnly="{Binding IsNotEditing}"
                          Visibility="{Binding CardInfoVisibility}"/>
             </StackPanel>
@@ -132,7 +131,7 @@
                 <Label Content="Billing address" Visibility="{Binding CardInfoVisibility}"/>
                 <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
                          Text="{Binding BillingAddress}" VerticalAlignment="Top" 
-                         Height="20" Width="250"
+                         Width="250"
                          IsReadOnly="{Binding IsNotEditing}"
                          Visibility="{Binding CardInfoVisibility}"/>
             </StackPanel>

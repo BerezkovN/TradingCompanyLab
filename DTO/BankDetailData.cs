@@ -15,8 +15,10 @@
         public string? BillingAddress { get; set; }
 
 
-        public static bool IsValidCardNumber(string cardNumber)
+        public static bool IsValidCardNumber(string? cardNumber)
         {
+            if (cardNumber == null) return false;
+
             if (cardNumber.Length < 10 || cardNumber.Length > 16)
                 return false;
 
@@ -31,16 +33,22 @@
             return true;
         }
 
-        public static bool IsValidCVV(string cvv)
+        public static bool IsValidCVV(string? cvv)
         {
+            if (cvv == null) 
+                return false;
+
             if (string.IsNullOrWhiteSpace(cvv) || (cvv.Length != 3 && cvv.Length != 4))
                 return false;
 
             return cvv.All(char.IsDigit);
         }
 
-        public static bool IsValidExpirationDate(string expirationDate)
+        public static bool IsValidExpirationDate(string? expirationDate)
         {
+            if (expirationDate == null) 
+                return false;
+
             if (string.IsNullOrWhiteSpace(expirationDate) || !expirationDate.Contains("/"))
                 return false;
 
