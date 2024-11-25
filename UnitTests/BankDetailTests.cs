@@ -49,7 +49,7 @@ namespace UnitTests
             Assert.AreEqual(_tradingCompany.Database.BankDetailDal.GetBankDetailData(updatedUser.UserId).CardNumber, retrievedDetails.CardNumber, "Card numbers should match.");
         }
 
-        /*
+        
         [Test]
         public void GetBankDetail_test()
         {
@@ -76,7 +76,7 @@ namespace UnitTests
                 CardHolderName = "Test User",
                 BillingAddress = "123 Test St"
             };
-            _tradingCompany.Database.BankDetailDal.UpdateBankDetail(bankDetails);
+ /*           _tradingCompany.Database.BankDetailDal.UpdateBankDetail(bankDetails);
 
             var updatedUser = _tradingCompany.Database.UserDal.Login(username, password);
 
@@ -84,17 +84,16 @@ namespace UnitTests
 
             Assert.NotNull(retrievedDetails, "Bank details should not be null.");
             Assert.AreEqual(_tradingCompany.Database.BankDetailDal.GetBankDetailData(updatedUser.UserId).CardNumber, retrievedDetails.CardNumber, "Card numbers should match.");
-
+ */
 
             _tradingCompany.Database.BankDetailDal.UpdateBankDetail(bankDetails);
 
-            // Act
-            var retrievedDetails = _tradingCompany.Database.BankDetailDal.GetBankDetailData(user.UserId);
-            //_tradingCompany.Database.UserDal.DeleteUser(user.UserId);
-
-            // Assert
+           
+             var retrievedDetails = _tradingCompany.Database.BankDetailDal.GetBankDetailData(user.UserId);
+            _tradingCompany.Database.UserDal.DeleteUser(user.UserId);
+  
             Assert.NotNull(retrievedDetails, "Bank details should not be null.");
             Assert.AreEqual(bankDetails.CardNumber, retrievedDetails.CardNumber, "Card numbers should match.");
-        }*/
+        }
     }
 }

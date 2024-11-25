@@ -53,7 +53,7 @@ namespace UnitTests
 
             _tradingCompany.LogIn(username, password);
 
-            if (_tradingCompany.CheckRecoveryKey(recovery_key))
+            if (_tradingCompany.CheckRecoveryKey(username, recovery_key))
                 Assert.Pass();
             else
                 Assert.Fail();
@@ -71,7 +71,7 @@ namespace UnitTests
 
             _tradingCompany.LogIn(username, password);
 
-            if (_tradingCompany.CheckRecoveryKey(recovery_key))
+            if (_tradingCompany.CheckRecoveryKey(username, recovery_key))
                 Assert.Fail();
             else
                 Assert.Pass();
@@ -92,7 +92,7 @@ namespace UnitTests
 
             string new_password = "graceful1234";
 
-            _tradingCompany.UpdatePassword(recoveryKey, new_password);
+            _tradingCompany.UpdatePassword(username, recoveryKey, new_password);
 
             _tradingCompany.LogOut();
             _tradingCompany.LogIn(username, new_password);
@@ -102,7 +102,7 @@ namespace UnitTests
             else
                 Assert.Pass();
 
-            _tradingCompany.UpdatePassword(recoveryKey, password);
+            _tradingCompany.UpdatePassword(username, recoveryKey, password);
             _tradingCompany.LogOut();
 
         }
