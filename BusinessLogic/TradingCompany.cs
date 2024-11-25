@@ -134,5 +134,10 @@ namespace BusinessLogic
         {
             _database.SessionDal.EndSession(user.Data.UserId);
         }
+
+        public List<BankDetailData> GetAllBankDetails()
+        {
+            return _database.BankDetailDal.GetAllBankDetailData();
+        }
     }
 }

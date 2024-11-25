@@ -46,13 +46,11 @@ namespace WpfApp.MVVM.ViewModel
                 case Pages.UserMenu:
                     navigatedViewModel = new UserViewModel(this);
                     break;
-                case Pages.AdminMenu:
-                    return;
-                    //navigatedViewModel = _userViewModel;
+                case Pages.AdminPanel:
+                    navigatedViewModel = new AdminPanelViewModel(this);
                     break;
                 default:
                     return;
-                    break;
             }
 
             this.CurrentViewModel = navigatedViewModel;
@@ -63,7 +61,7 @@ namespace WpfApp.MVVM.ViewModel
             Login,
             RecoverPassword,
             UserMenu,
-            AdminMenu
+            AdminPanel
         }
     }
 }

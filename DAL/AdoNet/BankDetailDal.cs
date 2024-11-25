@@ -97,6 +97,42 @@ namespace DAL.AdoNet
                 throw new InvalidOperationException($"Error updating bank details: {ex.Message}");
             }
         }
-       
+
+        public List<BankDetailData> GetAllBankDetailData()
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                using SqlCommand command = connection.CreateCommand();
+
+                command.CommandText = @"SELECT * FROM BankDetailsTBL";
+                
+                connection.Open();
+
+                using SqlDataReader reader = command.ExecuteReader();
+                List<BankDetailData> result = new List<BankDetailData>();
+
+                while (reader.Read())
+                {
+                    result.Add(new BankDetailData
+                    {
+                        UserId = reader.GetInt32(0),
+                        CardNumber = reader.GetString(1),
+                        ExpirationDate = reader.GetString(2),
+                        CardCVV = reader.GetString(3),
+                        CardHolderName = reader.GetString(4),
+                        BillingAddress = reader.GetString(5)
+                    });
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Error when getting bank detail data: {ex.Message}");
+            }
+
+            return null;
+        }
     }
 }

@@ -33,7 +33,12 @@
             
             <Button Content="Upload picture" 
                     Margin="10"
-                    Command="{Binding UploadPictureCommand}"/>
+                    Command="{Binding UploadPictureCommand}"/>        
+            
+            <Button Content="Admin Panel" 
+                    Margin="10"
+                    Visibility="{Binding AdminUserVisibility}"
+                    Command="{Binding AdminPanelCommand}"/>
 
         </StackPanel>
 

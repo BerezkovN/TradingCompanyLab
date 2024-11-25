@@ -26,7 +26,7 @@ namespace DAL.AdoNet
                 using SqlCommand command = connection.CreateCommand();
                 
                 command.CommandText =
-                    @"SELECT u.Id, u.Username, u.Email, u.FirstName, u.LastName, u.Gender, 
+                    @"SELECT u.Id, u.Username, u.Email, u.Password, u.FirstName, u.LastName, u.Gender, 
                                 u.PhoneNumber, u.Address, u.Role, u.RecoveryKey, 
                                 u.ProfilePicture, u.CreatedAt, u.UpdatedAt
                         FROM UsersTBL u
@@ -45,6 +45,7 @@ namespace DAL.AdoNet
                     {
                         UserId = Convert.ToInt32(reader["Id"]),
                         Username = reader["Username"].ToString(),
+                        Password = reader["Password"].ToString(),
                         Email = reader["Email"].ToString(),
                         FirstName = reader["FirstName"].ToString(),
                         LastName = reader["LastName"].ToString(),
@@ -136,6 +137,7 @@ namespace DAL.AdoNet
                     {
                         UserId = Convert.ToInt32(reader["Id"]),
                         Username = reader["Username"].ToString(),
+                        Password = reader["Password"].ToString(),
                         Email = reader["Email"].ToString(),
                         FirstName = reader["FirstName"].ToString(),
                         LastName = reader["LastName"].ToString(),

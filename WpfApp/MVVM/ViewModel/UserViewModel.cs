@@ -51,6 +51,14 @@ namespace WpfApp.MVVM.ViewModel
             set => SetProperty(ref _cardInfoVisibility, value);
         }
 
+        private Visibility _adminUserVisibility;
+        public Visibility AdminUserVisibility
+        {
+            get => _adminUserVisibility;
+            set => SetProperty(ref _adminUserVisibility, value);
+        }
+
+
 
         // User
         public string Username
@@ -189,6 +197,7 @@ namespace WpfApp.MVVM.ViewModel
         public RelayCommand EditOrUpdateCommand => new RelayCommand(EditOrUpdate);
         public RelayCommand AddCardCommand => new RelayCommand(AddCard, (o) => !_isNotEditing);
         public RelayCommand UploadPictureCommand => new RelayCommand(UploadPicture, (o) => !_isNotEditing);
+        public RelayCommand AdminPanelCommand => new RelayCommand(AdminPanel);
 
         public UserViewModel(MainViewModel mainViewModel)
         {
@@ -222,6 +231,10 @@ namespace WpfApp.MVVM.ViewModel
 
             DisplayBankCreditDetail(_mainViewModel.TradingCompany.LoggedInUser);
             DisplayImage(userData);
+
+            AdminUserVisibility = _mainViewModel.TradingCompany.LoggedInUser.Role == UserRole.Admin
+                ? Visibility.Visible
+                : Visibility.Collapsed;
         }
 
         private void DisplayBankCreditDetail(User user)
@@ -339,6 +352,11 @@ namespace WpfApp.MVVM.ViewModel
         {
             AddCardButtonVisibility = Visibility.Collapsed;
             CardInfoVisibility = Visibility.Visible;
+        }
+
+        private void AdminPanel(object? o)
+        {
+            _mainViewModel.Navigate(MainViewModel.Pages.AdminPanel);
         }
 
         private static BitmapImage? LoadImageFromBytes(byte[]? imageData)
