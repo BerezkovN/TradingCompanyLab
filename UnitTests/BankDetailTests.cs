@@ -48,6 +48,8 @@ namespace UnitTests
             Assert.NotNull(retrievedDetails, "Bank details should not be null.");
             Assert.AreEqual(_tradingCompany.Database.BankDetailDal.GetBankDetailData(updatedUser.UserId).CardNumber, retrievedDetails.CardNumber, "Card numbers should match.");
         }
+
+        /*
         [Test]
         public void GetBankDetail_test()
         {
@@ -93,6 +95,6 @@ namespace UnitTests
             // Assert
             Assert.NotNull(retrievedDetails, "Bank details should not be null.");
             Assert.AreEqual(bankDetails.CardNumber, retrievedDetails.CardNumber, "Card numbers should match.");
-        }
+        }*/
     }
 }

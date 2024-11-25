@@ -9,8 +9,9 @@
     <Grid>
 
         <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
-
             <StackPanel Orientation="Horizontal" Margin="10">
+
+               
 
                 <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="10">
                     <Label Content="Username:"/>

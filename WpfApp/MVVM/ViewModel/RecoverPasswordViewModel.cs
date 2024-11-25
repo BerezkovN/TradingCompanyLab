@@ -19,21 +19,33 @@ namespace WpfApp.MVVM.ViewModel
         public Visibility RecoverPassword
         {
             get => _recoverPassword;
-            set => SetProperty(ref _recoverPassword, value);
+            set
+            {
+                _recoverPassword = value;
+                OnPropertyChange();
+            }
         }
 
         private string _recoveryKey;
         public string RecoveryKey
         {
             get => _recoveryKey;
-            set => SetProperty(ref _recoveryKey, value);
+            set
+            {
+                _recoveryKey = value;
+                OnPropertyChange();
+            }
         }
 
         private string _newPassword;
         public string NewPassword
         {
             get => _newPassword;
-            set => SetProperty(ref _newPassword, value);
+            set
+            {
+                _newPassword = value;
+                OnPropertyChange();
+            }
         }
 
         public RelayCommand RecoverCommand => new RelayCommand(Recover);

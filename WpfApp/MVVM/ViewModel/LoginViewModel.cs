@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Input;
 using WpfApp.MVVM.Core;
 
 namespace WpfApp.MVVM.ViewModel
@@ -11,23 +12,30 @@ namespace WpfApp.MVVM.ViewModel
         private string _username;
         public string Username {
             get => _username; 
-            set => SetProperty(ref _username, value);
+            set
+            {
+                _username = value;
+                OnPropertyChange();
+            } 
         }
 
         private string _password;
         public string Password
         {
             get => _password;
-            set => SetProperty(ref _password, value);
+            set
+            {
+                _password= value;
+                OnPropertyChange();
+            }
         }
 
         private readonly MainViewModel _mainViewModel;
 
         public LoginViewModel(MainViewModel mainViewModel)
         {
-            _mainViewModel = mainViewModel;
+            _mainViewModel = mainViewModel;    
         }
-
 
         private void Login(object? o)
         {

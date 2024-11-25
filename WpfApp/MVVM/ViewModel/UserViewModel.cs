@@ -19,43 +19,67 @@ namespace WpfApp.MVVM.ViewModel
         private BitmapImage _userProfile;
         public BitmapImage UserProfile
         {
-            get => _userProfile; 
-            set => SetProperty(ref _userProfile, value);
+            get => _userProfile;
+            set
+            {
+                _userProfile= value;
+                OnPropertyChange();
+            }
         }
 
         private bool _isNotEditing;
         public bool IsNotEditing
         {
             get => _isNotEditing;
-            set => SetProperty(ref _isNotEditing, value);
+            set
+            {
+                _isNotEditing = value;
+                OnPropertyChange();
+            }
         }
 
         private string _editOrUpdateContent;
         public string EditOrUpdateContent
         {
             get => _editOrUpdateContent;
-            set => SetProperty(ref _editOrUpdateContent, value);
+            set
+            {
+                _editOrUpdateContent = value;
+                OnPropertyChange();
+            }
         }
 
         private Visibility _addCardButtonVisibility;
         public Visibility AddCardButtonVisibility
         {
             get => _addCardButtonVisibility;
-            set => SetProperty(ref _addCardButtonVisibility, value);
+            set
+            {
+                _addCardButtonVisibility = value;
+                OnPropertyChange();
+            }
         }
 
         private Visibility _cardInfoVisibility;
         public Visibility CardInfoVisibility
         {
             get => _cardInfoVisibility;
-            set => SetProperty(ref _cardInfoVisibility, value);
+            set
+            {
+                _cardInfoVisibility = value;
+                OnPropertyChange();
+            }
         }
 
         private Visibility _adminUserVisibility;
         public Visibility AdminUserVisibility
         {
             get => _adminUserVisibility;
-            set => SetProperty(ref _adminUserVisibility, value);
+            set
+            {
+                _adminUserVisibility = value;
+                OnPropertyChange();
+            }
         }
 
 
