@@ -269,9 +269,8 @@ namespace WpfApp.MVVM.ViewModel
 
         private void Logout(object? o)
         {
-            // TODO: Logout
-            //_mainViewModel.TradingCompany.
-
+            // TODO:
+            _mainViewModel.TradingCompany.EndUserSession(_loggedInUser);
             _mainViewModel.Navigate(MainViewModel.Pages.Login);
         }
 

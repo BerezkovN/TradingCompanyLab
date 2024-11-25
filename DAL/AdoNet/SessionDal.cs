@@ -79,7 +79,7 @@ namespace DAL.AdoNet
                     sessions.Add(new SessionData {
                         UserId = reader.GetInt32(0),
                         Status = reader.GetString(1),
-                        LoginTime = reader.IsDBNull(3) ? (DateTime?)null : reader.GetDateTime(2),
+                        LoginTime = reader.IsDBNull(2) ? (DateTime?)null : reader.GetDateTime(2),
                         LogoutTime = reader.IsDBNull(3) ? (DateTime?)null : reader.GetDateTime(3)
                     });
                 }
