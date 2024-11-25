@@ -48,24 +48,31 @@ namespace BusinessLogic
             return _loggedInUser;
         }
 
-        public bool CheckRecoveryKey(string recoveryKey)
+        public bool CheckRecoveryKey(string username, string recoveryKey)
         {
-            if (_loggedInUser == null)
+            if (username == null)
                 return false;
 
-            return _loggedInUser.Data.RecoveryKey == recoveryKey;
+            var user = _database.UserDal.GetUserByUsername(username);
+            if (user == null)
+                return false;
+
+            return user.RecoveryKey == recoveryKey;
         }
 
-        public void UpdatePassword(string recoveryKey, string newPassword)
+        public void UpdatePassword(string username, string recoveryKey, string newPassword)
         {
-            if (_loggedInUser == null)
+            if (username == null)
                 return;
 
-            if (!CheckRecoveryKey(recoveryKey))
+            if (!CheckRecoveryKey(username, recoveryKey))
                 return;
 
-            _database.UserDal.UpdateUser("Password", newPassword, _loggedInUser.Data.UserId);
+            var user = _database.UserDal.GetUserByUsername(username);
+            if (user == null)
+                return;
 
+            _database.UserDal.UpdateUser("Password", newPassword, user.UserId);
         }
 
         public List<User> GetAllUsers()
