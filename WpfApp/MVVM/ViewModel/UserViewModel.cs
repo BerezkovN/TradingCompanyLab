@@ -270,7 +270,7 @@ namespace WpfApp.MVVM.ViewModel
         private void Logout(object? o)
         {
             // TODO:
-            _mainViewModel.TradingCompany.EndUserSession(_loggedInUser);
+            _mainViewModel.TradingCompany.LogOut();
             _mainViewModel.Navigate(MainViewModel.Pages.Login);
         }
 
@@ -288,37 +288,48 @@ namespace WpfApp.MVVM.ViewModel
             }
             else
             {
-                if (!BankDetailData.IsValidCardNumber(_bankDetailData.CardNumber))
-                {
-                    MessageBox.Show("Invalid card number");
-                    IsNotEditing = false;
-                    return;
-                }
-
-                if (!BankDetailData.IsValidExpirationDate(_bankDetailData.ExpirationDate))
-                {
-                    MessageBox.Show("Invalid expiration date");
-                    IsNotEditing = false;
-                    return;
-                }
-
-                if (!BankDetailData.IsValidCVV(_bankDetailData.CardCVV))
-                {
-                    MessageBox.Show("Invalid CVV");
-                    IsNotEditing = false;
-                    return;
-                }
+                ValidateBankCard(user);
 
                 EditOrUpdateContent = "Edit";
-
-                _bankDetailData.UserId = user.Data.UserId;
-                user.BankDetailData = _bankDetailData;
                 _mainViewModel.TradingCompany.UpdateUser(user);
             }
 
             OnPropertyChange(nameof(AddCardCommand));
             OnPropertyChange(nameof(UploadPictureCommand));
         }
+
+        private void ValidateBankCard(User user)
+        {
+            if (AddCardButtonVisibility == Visibility.Visible)
+            {
+                return;
+            }
+
+            if (!BankDetailData.IsValidCardNumber(_bankDetailData.CardNumber))
+            {
+                MessageBox.Show("Invalid card number");
+                IsNotEditing = false;
+                return;
+            }
+
+            if (!BankDetailData.IsValidExpirationDate(_bankDetailData.ExpirationDate))
+            {
+                MessageBox.Show("Invalid expiration date");
+                IsNotEditing = false;
+                return;
+            }
+
+            if (!BankDetailData.IsValidCVV(_bankDetailData.CardCVV))
+            {
+                MessageBox.Show("Invalid CVV");
+                IsNotEditing = false;
+                return;
+            }
+
+            _bankDetailData.UserId = user.Data.UserId;
+            user.BankDetailData = _bankDetailData;
+        }
+        
 
         private void UploadPicture(object? o)
         {

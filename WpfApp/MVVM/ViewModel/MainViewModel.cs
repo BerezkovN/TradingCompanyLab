@@ -6,19 +6,7 @@ namespace WpfApp.MVVM.ViewModel
     public class MainViewModel : ViewModelBase
     {
 
-        private readonly TradingCompany _tradingCompany;
-
         private ViewModelBase _currentViewModel;
-
-        public MainViewModel()
-        {
-            _tradingCompany = new TradingCompany();
-
-            this.Navigate(Pages.Login);
-        }
-
-        public TradingCompany TradingCompany => _tradingCompany;
-
         public ViewModelBase CurrentViewModel
         {
             get => _currentViewModel;
@@ -27,6 +15,19 @@ namespace WpfApp.MVVM.ViewModel
                 _currentViewModel = value;
                 OnPropertyChange();
             }
+        }
+
+        private readonly TradingCompany _tradingCompany;
+        public TradingCompany TradingCompany => _tradingCompany;
+
+
+
+        public MainViewModel()
+        {
+            _tradingCompany = new TradingCompany("SqlServer");
+
+            
+            this.Navigate(Pages.Login);
         }
 
 
