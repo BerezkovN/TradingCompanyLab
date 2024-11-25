@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -69,9 +69,7 @@ namespace DAL.AdoNet
                 using SqlConnection connection = new SqlConnection(_connectionString);
                 
                 using SqlCommand command = connection.CreateCommand();
-                command.CommandText = @"
-                SELECT *
-                FROM SessionsTBL";
+                command.CommandText = @"SELECT * FROM SessionsTBL";
 
                 connection.Open();
 

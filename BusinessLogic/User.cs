@@ -1,20 +1,17 @@
 ﻿using DTO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BusinessLogic
 {
     public class User
     {
         protected UserData _userData;
+
         protected UserRole _role;
 
         public UserData Data => _userData;
         public UserRole Role => _role;
 
+        public BankDetailData? BankDetailData { get; set; }
 
         public User(UserData userData)
         {

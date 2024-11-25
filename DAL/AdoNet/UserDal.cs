@@ -27,12 +27,10 @@ namespace DAL.AdoNet
                 using SqlCommand command = connection.CreateCommand();
                 
                 command.CommandText =
-                    @"SELECT u.Id, u.Username, u.Email, u.FirstName, u.LastName, u.Gender, 
+                    @"SELECT u.Id, u.Username, u.Email, u.Password, u.FirstName, u.LastName, u.Gender, 
                                 u.PhoneNumber, u.Address, u.Role, u.RecoveryKey, 
-                                u.ProfilePicture, u.CreatedAt, u.UpdatedAt, 
-                                b.CardNumber, b.ExpirationDate, b.CardCVV, b.CardHolderName
+                                u.ProfilePicture, u.CreatedAt, u.UpdatedAt
                         FROM UsersTBL u
-                        LEFT JOIN BankDetailsTBL b ON u.Id = b.UserId
                         WHERE u.Username = @Username AND u.Password = @Password";
 
                 command.Parameters.AddWithValue("@Username", username);
@@ -48,6 +46,7 @@ namespace DAL.AdoNet
                     {
                         UserId = Convert.ToInt32(reader["Id"]),
                         Username = reader["Username"].ToString(),
+                        Password = reader["Password"].ToString(),
                         Email = reader["Email"].ToString(),
                         FirstName = reader["FirstName"].ToString(),
                         LastName = reader["LastName"].ToString(),
@@ -58,14 +57,7 @@ namespace DAL.AdoNet
                         RecoveryKey = reader["RecoveryKey"].ToString(),
                         ProfilePicture = reader["ProfilePicture"] as byte[],
                         CreatedAt = Convert.ToDateTime(reader["CreatedAt"]),
-                        UpdatedAt = reader.IsDBNull(reader.GetOrdinal("UpdatedAt")) ? (DateTime?)null : Convert.ToDateTime(reader["UpdatedAt"]),
-                        BankCardDetails = new BankDetailData
-                        {
-                            CardNumber = reader["CardNumber"].ToString(),
-                            ExpirationDate = reader["ExpirationDate"].ToString(),
-                            CardCVV = reader["CardCVV"].ToString(),
-                            CardHolderName = reader["CardHolderName"].ToString()
-                        }
+                        UpdatedAt = reader.IsDBNull(reader.GetOrdinal("UpdatedAt")) ? (DateTime?)null : Convert.ToDateTime(reader["UpdatedAt"])
                     };
                 }
             }
@@ -146,6 +138,7 @@ namespace DAL.AdoNet
                     {
                         UserId = Convert.ToInt32(reader["Id"]),
                         Username = reader["Username"].ToString(),
+                        Password = reader["Password"].ToString(),
                         Email = reader["Email"].ToString(),
                         FirstName = reader["FirstName"].ToString(),
                         LastName = reader["LastName"].ToString(),

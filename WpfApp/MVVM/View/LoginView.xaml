@@ -7,20 +7,40 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        
-        <TextBox x:Name="UsernameEditBox" HorizontalAlignment="Left" 
-                 Margin="270,200,0,0" TextWrapping="Wrap" 
-                 Text="Username" VerticalAlignment="Top" 
-                 Height="20" Width="120"/>
-        
-        <TextBox x:Name="PasswordEditBox" HorizontalAlignment="Right" 
-                 Margin="0,200,270,0" TextWrapping="Wrap" 
-                 Text="Password" VerticalAlignment="Top" 
-                 Height="20" Width="120"/>
 
-        <Button x:Name="LoginButton" Content="Login" 
-                HorizontalAlignment="Center" Margin="0,242,0,0" 
-                VerticalAlignment="Top" Width="92"
-                Command="{Binding LoginCommand}"/>
+        <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
+
+            <StackPanel Orientation="Horizontal" Margin="10">
+
+                <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="10">
+                    <Label Content="Username:"/>
+                    
+                    <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
+                            Text="{Binding Username}" VerticalAlignment="Top" 
+                            Width="120"/>
+
+                </StackPanel>
+
+                <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="10">
+                    <Label Content="Password:"/>
+
+                    <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
+                           Text="{Binding Password}" VerticalAlignment="Top" 
+                           Width="120"/>
+
+                </StackPanel>
+
+            </StackPanel>
+
+
+            <Button x:Name="LoginButton" Content="Login" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Top" Width="92"
+                    Command="{Binding LoginCommand}"/>
+            
+            
+        </StackPanel>
+        
+
     </Grid>
 </UserControl>
