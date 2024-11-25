@@ -8,19 +8,11 @@ namespace WpfApp.MVVM.ViewModel
 
         private readonly TradingCompany _tradingCompany;
 
-        private readonly LoginViewModel _loginViewMode;
-        private readonly UserViewModel _userViewModel;
-        private readonly RecoverPasswordViewModel _recoverPasswordViewModel;
-
         private ViewModelBase _currentViewModel;
 
         public MainViewModel()
         {
             _tradingCompany = new TradingCompany();
-
-            _loginViewMode = new LoginViewModel(this);
-            _userViewModel = new UserViewModel(this);
-            _recoverPasswordViewModel = new RecoverPasswordViewModel(this);
 
             this.Navigate(Pages.Login);
         }
@@ -46,14 +38,13 @@ namespace WpfApp.MVVM.ViewModel
             switch (page)
             {
                 case Pages.Login:
-                    navigatedViewModel = _loginViewMode;
+                    navigatedViewModel = new LoginViewModel(this);
                     break;
                 case Pages.RecoverPassword:
-                    navigatedViewModel = _recoverPasswordViewModel;
+                    navigatedViewModel = new RecoverPasswordViewModel(this);
                     break;
                 case Pages.UserMenu:
-                    _userViewModel.OnNavigate();
-                    navigatedViewModel = _userViewModel;
+                    navigatedViewModel = new UserViewModel(this);
                     break;
                 case Pages.AdminMenu:
                     return;

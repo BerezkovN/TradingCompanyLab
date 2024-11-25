@@ -1,7 +1,9 @@
 ﻿
 using BusinessLogic;
+using DAL.AdoNet;
 using DTO;
 using System.IO;
+using System.Windows;
 using System.Windows.Media.Imaging;
 using WpfApp.MVVM.Core;
 
@@ -12,6 +14,7 @@ namespace WpfApp.MVVM.ViewModel
         
         private readonly MainViewModel _mainViewModel;
         private readonly User _loggedInUser;
+        private readonly BankDetailData _bankDetailData;
 
         private bool _isEditing = false;
 
@@ -30,90 +33,185 @@ namespace WpfApp.MVVM.ViewModel
             set => SetProperty(ref _isNotEditing, value);
         }
 
-
-        private string _username;
-        public string Username
-        {
-            get => _username;
-            set => SetProperty(ref _username, value);
-        }
-
-        private string _role;
-        public string Role
-        {
-            get => _role;
-            set => SetProperty(ref _role, value);
-        }
-
-        private string _email;
-        public string Email
-        {
-            get => _email;
-            set => SetProperty(ref _email, value);
-        }
-
-        private string _firstName;
-        public string FirstName
-        {
-            get => _firstName;
-            set => SetProperty(ref _firstName, value);
-        }
-
-        private string _lastName;
-        public string LastName
-        {
-            get => _lastName;
-            set => SetProperty(ref _lastName, value);
-        }
-
-        private string _gender;
-        public string Gender
-        {
-            get => _gender;
-            set => SetProperty(ref _gender, value);
-        }
-
-        private string _phoneNumber;
-        public string PhoneNumber
-        {
-            get => _phoneNumber;
-            set => SetProperty(ref _phoneNumber, value);
-        }
-
-        private string _address;
-        public string Address
-        {
-            get => _address;
-            set => SetProperty(ref _address, value);
-        }
-
         private string _editOrUpdateContent;
-
         public string EditOrUpdateContent
         {
             get => _editOrUpdateContent;
             set => SetProperty(ref _editOrUpdateContent, value);
         }
 
+        private Visibility _addCardButtonVisibility;
+        public Visibility AddCardButtonVisibility
+        {
+            get => _addCardButtonVisibility;
+            set => SetProperty(ref _addCardButtonVisibility, value);
+        }
+
+        private Visibility _cardInfoVisibility;
+        public Visibility CardInfoVisibility
+        {
+            get => _cardInfoVisibility;
+            set => SetProperty(ref _cardInfoVisibility, value);
+        }
+
+
+        // User
+        public string Username
+        {
+            get => _loggedInUser.Data.Username;
+            set
+            {
+                _loggedInUser.Data.Username = value;
+                OnPropertyChange();
+            }
+        }
+
+        public string Role
+        {
+            get => _loggedInUser.Data.Role;
+            set
+            {
+                _loggedInUser.Data.Role = value;
+                OnPropertyChange();
+            }
+        }
+
+        public string Email
+        {
+            get => _loggedInUser.Data.Email;
+            set
+            {
+                _loggedInUser.Data.Email = value;
+                OnPropertyChange();
+            }
+        }
+
+        public string FirstName
+        {
+            get => _loggedInUser.Data.FirstName;
+            set
+            {
+                _loggedInUser.Data.FirstName = value;
+                OnPropertyChange();
+            }
+        }
+
+        public string LastName
+        {
+            get => _loggedInUser.Data.LastName;
+            set
+            {
+                _loggedInUser.Data.LastName = value;
+                OnPropertyChange();
+            }
+        }
+
+        public string Gender
+        {
+            get => _loggedInUser.Data.Gender;
+            set
+            {
+                _loggedInUser.Data.Gender = value;
+                OnPropertyChange();
+            }
+        }
+
+        public string PhoneNumber
+        {
+            get => _loggedInUser.Data.PhoneNumber;
+            set
+            {
+                _loggedInUser.Data.PhoneNumber = value;
+                OnPropertyChange();
+            }
+        }
+
+        public string Address
+        {
+            get => _loggedInUser.Data.Address;
+            set
+            {
+                _loggedInUser.Data.Address = value;
+                OnPropertyChange();
+            }
+        }
+
+
+        // Bank detail
+        public string CardNumber
+        {
+            get => _bankDetailData.CardNumber;
+            set
+            {
+                _bankDetailData.CardNumber = value;
+                OnPropertyChange();
+            }
+        }
+
+        public string ExpirationDate
+        {
+            get => _bankDetailData.ExpirationDate;
+            set
+            {
+                _bankDetailData.ExpirationDate = value;
+                OnPropertyChange();
+            }
+        }
+
+        public string CardCVV
+        {
+            get => _bankDetailData.CardCVV;
+            set
+            {
+                _bankDetailData.CardCVV = value;
+                OnPropertyChange();
+            }
+        }
+
+        public string CardholderName
+        {
+            get => _bankDetailData.CardHolderName;
+            set
+            {
+                _bankDetailData.CardHolderName = value;
+                OnPropertyChange();
+            }
+        }
+
+        public string BillingAddress
+        {
+            get => _bankDetailData.BillingAddress;
+            set
+            {
+                _bankDetailData.BillingAddress = value;
+                OnPropertyChange();
+            }
+        }
 
         public RelayCommand LogoutCommand => new RelayCommand(Logout);
         public RelayCommand EditOrUpdateCommand => new RelayCommand(EditOrUpdate);
-
+        public RelayCommand AddCardCommand => new RelayCommand(AddCard, (o) => _isEditing);
 
         public UserViewModel(MainViewModel mainViewModel)
         {
             _mainViewModel = mainViewModel;
-        }
+            _loggedInUser = _mainViewModel.TradingCompany.LoggedInUser;
 
-        public void OnNavigate()
-        {
+            _bankDetailData = _bankDetailData == null 
+                ? new BankDetailData()
+                : _loggedInUser.BankDetailData;
+
+            if (_loggedInUser == null)
+                throw new InvalidOperationException("Not logged in");
+
             IsNotEditing = true;
+            EditOrUpdateContent = "Edit";
 
             if (_mainViewModel.TradingCompany.LoggedInUser == null)
                 return;
 
             UserData userData = _mainViewModel.TradingCompany.LoggedInUser.Data;
-            
+
             Username = userData.Username;
             Role = userData.Role;
             Email = userData.Email;
@@ -123,18 +221,34 @@ namespace WpfApp.MVVM.ViewModel
             PhoneNumber = userData.PhoneNumber;
             Address = userData.Address;
 
-            DisplayImage();
+            DisplayBankCreditDetail(_mainViewModel.TradingCompany.LoggedInUser);
+            DisplayImage(userData);
         }
 
-        private void DisplayImage()
+        private void DisplayBankCreditDetail(User user)
         {
-            if (_mainViewModel.TradingCompany.LoggedInUser == null)
+            if (user.BankDetailData == null)
+            {
+                CardInfoVisibility = Visibility.Collapsed;
+                AddCardButtonVisibility = Visibility.Visible;
+                return;
+            }
+
+            CardNumber = user.BankDetailData.CardNumber;
+            ExpirationDate = user.BankDetailData.ExpirationDate;
+            CardCVV = user.BankDetailData.CardCVV;
+            CardholderName = user.BankDetailData.CardHolderName;
+            BillingAddress = user.BankDetailData.BillingAddress;
+
+            AddCardButtonVisibility = Visibility.Collapsed;
+        }
+
+        private void DisplayImage(UserData userData)
+        {
+            if (userData.ProfilePicture == null)
                 return;
 
-            if (_mainViewModel.TradingCompany.LoggedInUser.Data.ProfilePicture == null)
-                return;
-
-            var image = LoadImageFromBytes(_mainViewModel.TradingCompany.LoggedInUser.Data.ProfilePicture);
+            var image = LoadImageFromBytes(userData.ProfilePicture);
             if (image == null)
                 return;
 
@@ -151,22 +265,33 @@ namespace WpfApp.MVVM.ViewModel
 
         private void EditOrUpdate(object? o)
         {
+            User? user = _mainViewModel.TradingCompany.LoggedInUser;
+            if (user == null) 
+                return;
+
             _isEditing = !_isEditing;
+            OnPropertyChange(nameof(AddCardCommand));
 
             if (_isEditing)
             {
                 IsNotEditing = false;
-                EditOrUpdateContent = "Edit";
+                EditOrUpdateContent = "Update";
             }
             else
             {
-                IsNotEditing = false;
-                EditOrUpdateContent = "Update";
+                IsNotEditing = true;
+                EditOrUpdateContent = "Edit";
 
-                _mainViewModel.TradingCompany.UpdateUser()
+                _bankDetailData.UserId = user.Data.UserId;
+                user.BankDetailData = _bankDetailData;
+                _mainViewModel.TradingCompany.UpdateUser(user);
             }
+        }
 
-
+        private void AddCard(object? o)
+        {
+            AddCardButtonVisibility = Visibility.Collapsed;
+            CardInfoVisibility = Visibility.Visible;
         }
 
         private static BitmapImage? LoadImageFromBytes(byte[]? imageData)

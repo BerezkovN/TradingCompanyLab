@@ -54,7 +54,11 @@ namespace DAL.AdoNet
             return null;
         }
 
-       
+        public void AddBankDetail(int userId)
+        {
+
+        }
+
         public void UpdateBankDetail(BankDetailData data)
         {
             try
@@ -64,10 +68,20 @@ namespace DAL.AdoNet
 
                 connection.Open();
                
-                command.CommandText = 
-                    @"UPDATE BankDetailsTBL 
-                      SET CardNumber = @CardNumber, ExpirationDate = @ExpirationDate, CardCVV = @CardCVV, CardHolderName = @CardHolderName, BillingAddress = @BillingAddress
-                      WHERE UserId = @UserId";
+                command.CommandText = @"
+                    MERGE INTO BankDetailsTBL AS target
+                    USING (SELECT @UserId AS UserId) AS source
+                    ON target.UserId = source.UserId
+                    WHEN MATCHED THEN
+                        UPDATE SET 
+                            CardNumber = @CardNumber, 
+                            ExpirationDate = @ExpirationDate, 
+                            CardCVV = @CardCVV, 
+                            CardHolderName = @CardHolderName, 
+                            BillingAddress = @BillingAddress
+                    WHEN NOT MATCHED THEN
+                        INSERT (UserId, CardNumber, ExpirationDate, CardCVV, CardHolderName, BillingAddress)
+                        VALUES (@UserId, @CardNumber, @ExpirationDate, @CardCVV, @CardHolderName, @BillingAddress);";
 
                 command.Parameters.AddWithValue("@UserId", data.UserId);
                 command.Parameters.AddWithValue("@CardNumber", data.CardNumber ?? (object)DBNull.Value);

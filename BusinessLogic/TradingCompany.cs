@@ -41,8 +41,9 @@ namespace BusinessLogic
 
             // Створення сесії після успішного входу
             _database.SessionDal.StartSession(userData.UserId);
-           
+
             _loggedInUser = new User(userData);
+            _loggedInUser.BankDetailData = _database.BankDetailDal.GetBankDetailData(userData.UserId);
 
             return _loggedInUser;
         }
@@ -86,9 +87,26 @@ namespace BusinessLogic
             return new User(_database.UserDal.GetUser(userId));
         }
 
-        public void UpdateUser(User user, string columnName, object value)
+        public void UpdateUser(User user)
         {
+            this.UpdateUser(user, nameof(user.Data.Username), user.Data.Username);
+            this.UpdateUser(user, nameof(user.Data.Email), user.Data.Email);
+            this.UpdateUser(user, nameof(user.Data.FirstName), user.Data.FirstName);
+            this.UpdateUser(user, nameof(user.Data.LastName), user.Data.LastName);
+            this.UpdateUser(user, nameof(user.Data.Gender), user.Data.Gender);
+            this.UpdateUser(user, nameof(user.Data.PhoneNumber), user.Data.PhoneNumber);
+            this.UpdateUser(user, nameof(user.Data.Address), user.Data.Address);
+
+            this.UpdateBankDetail(user.BankDetailData);
+        }
+
+        public void UpdateUser(User user, string columnName, object? value)
+        {
+            if (value == null)
+                return;
+
             _database.UserDal.UpdateUser(columnName, value, user.Data.UserId);
+            _database.UserDal.UpdateUser("UpdatedAt", DateTime.Now, user.Data.UserId);
         }
 
         public void DeleteUser(User user)

@@ -26,7 +26,7 @@
                     Margin="10"
                     Command="{Binding LogoutCommand}"/>
 
-            <Button Content="{Binding EditOrUpdate}" 
+            <Button Content="{Binding EditOrUpdateContent}" 
                     Width="92" Height="20"
                     Margin="10"
                     Command="{Binding EditOrUpdateCommand}"/>
@@ -40,7 +40,7 @@
                 <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
                          Text="{Binding Email}" VerticalAlignment="Top" 
                          Height="20" Width="250"
-                         IsReadOnly="True"/>
+                         IsReadOnly="{Binding IsNotEditing}"/>
             </StackPanel>
 
             <StackPanel>
@@ -48,7 +48,7 @@
                 <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
                          Text="{Binding FirstName}" VerticalAlignment="Top" 
                          Height="20" Width="250"
-                         IsReadOnly="True"/>
+                         IsReadOnly="{Binding IsNotEditing}"/>
             </StackPanel>
             
             <StackPanel>
@@ -56,36 +56,85 @@
                 <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
                          Text="{Binding LastName}" VerticalAlignment="Top" 
                          Height="20" Width="250"
-                         IsReadOnly="True"/>
+                         IsReadOnly="{Binding IsNotEditing}"/>
             </StackPanel>
+
+            <StackPanel>
+              <Label Content="Gender"/>
+              <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
+                       Text="{Binding Gender}" VerticalAlignment="Top" 
+                       Height="20" Width="250"
+                       IsReadOnly="{Binding IsNotEditing}"/>
+            </StackPanel>
+
+          <StackPanel>
+            <Label Content="Phone number"/>
+            <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
+                     Text="{Binding PhoneNumber}" VerticalAlignment="Top" 
+                     Height="20" Width="250"
+                     IsReadOnly="{Binding IsNotEditing}"/>
+          </StackPanel>
+
+          <StackPanel>
+            <Label Content="Address"/>
+            <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
+                     Text="{Binding Address}" VerticalAlignment="Top" 
+                     Height="20" Width="250"
+                     IsReadOnly="{Binding IsNotEditing}"/>
+          </StackPanel>
 
         </StackPanel>
         
         <StackPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center">
 
             <StackPanel>
-                <Label Content="Gender"/>
+                <Label Content="Card number" Visibility="{Binding CardInfoVisibility}"/>
                 <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
-                         Text="{Binding Gender}" VerticalAlignment="Top" 
+                         Text="{Binding CardNumber}" VerticalAlignment="Top" 
                          Height="20" Width="250"
-                         IsReadOnly="True"/>
-            </StackPanel>
-
-            <StackPanel>
-                <Label Content="Phone number"/>
-                <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
-                         Text="{Binding PhoneNumber}" VerticalAlignment="Top" 
-                         Height="20" Width="250"
-                         IsReadOnly="True"/>
+                         IsReadOnly="{Binding IsNotEditing}"
+                         Visibility="{Binding CardInfoVisibility}"/>
             </StackPanel>
             
             <StackPanel>
-                <Label Content="Address"/>
+                <Label Content="Expiration date" Visibility="{Binding CardInfoVisibility}"/>
                 <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
-                         Text="{Binding Adress}" VerticalAlignment="Top" 
+                         Text="{Binding ExpirationDate}" VerticalAlignment="Top" 
                          Height="20" Width="250"
-                         IsReadOnly="True"/>
+                         IsReadOnly="{Binding IsNotEditing}"
+                         Visibility="{Binding CardInfoVisibility}"/>
             </StackPanel>
+
+            <StackPanel>
+                <Label Content="Card CVV" Visibility="{Binding CardInfoVisibility}"/>
+                <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
+                         Text="{Binding CardCVV}" VerticalAlignment="Top" 
+                         Height="20" Width="250"
+                         IsReadOnly="{Binding IsNotEditing}"
+                         Visibility="{Binding CardInfoVisibility}"/>
+            </StackPanel>
+            
+            <StackPanel>
+                <Label Content="Cardholder name" Visibility="{Binding CardInfoVisibility}"/>
+                <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
+                         Text="{Binding CardholderName}" VerticalAlignment="Top" 
+                         Height="20" Width="250"
+                         IsReadOnly="{Binding IsNotEditing}"
+                         Visibility="{Binding CardInfoVisibility}"/>
+            </StackPanel>
+            
+            <StackPanel>
+                <Label Content="Billing address" Visibility="{Binding CardInfoVisibility}"/>
+                <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" 
+                         Text="{Binding BillingAddress}" VerticalAlignment="Top" 
+                         Height="20" Width="250"
+                         IsReadOnly="{Binding IsNotEditing}"
+                         Visibility="{Binding CardInfoVisibility}"/>
+            </StackPanel>
+
+            <Button Content="Add Card" 
+                    Command="{Binding AddCardCommand}"
+                    Visibility="{Binding AddCardButtonVisibility}"/>
 
         </StackPanel>
     </Grid>
