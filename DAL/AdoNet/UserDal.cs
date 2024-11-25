@@ -230,5 +230,44 @@ namespace DAL.AdoNet
             
         }
 
+        public UserData? GetUserByUsername(string username)
+        {
+            try
+            {
+                using SqlConnection connection = new SqlConnection(_connectionString);
+                using SqlCommand command = connection.CreateCommand();
+                command.CommandText = "SELECT Id, Username, Email, Role, FirstName, LastName, Gender, PhoneNumber, Address, ProfilePicture, RecoveryKey FROM UsersTBL WHERE Username = @Username";
+                command.Parameters.AddWithValue("@Username", username);
+
+                connection.Open();
+
+                using SqlDataReader reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    return new UserData
+                    {
+                        UserId = reader.GetInt32(0),
+                        Username = reader.GetString(1),
+                        Email = reader.IsDBNull(2) ? null : reader.GetString(2),
+                        Role = reader.GetString(3),
+                        FirstName = reader.IsDBNull(4) ? null : reader.GetString(4),
+                        LastName = reader.IsDBNull(5) ? null : reader.GetString(5),
+                        Gender = reader.IsDBNull(6) ? null : reader.GetString(6),
+                        PhoneNumber = reader.IsDBNull(7) ? null : reader.GetString(7),
+                        Address = reader.IsDBNull(8) ? null : reader.GetString(8),
+                        ProfilePicture = reader.IsDBNull(9) ? null : (byte[])reader[9],
+                        RecoveryKey = reader.IsDBNull(10) ? null : reader.GetString(10)
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Помилка зчитування користувача по імені: {ex.Message}");
+                throw;
+            }
+
+            return null; // Повертаємо null, якщо користувача не знайдено
+        }
+
     }
 }

@@ -11,7 +11,9 @@ namespace DAL.Interface
         public void DeleteUser(int userId);
         public List<UserData> GetAllUsers();
         public UserData GetUser(int userId);
-       
+        public UserData? GetUserByUsername(string username);
+
+
         public void CreateUser(string username, string email, string password, string recoveryKey);
 
 

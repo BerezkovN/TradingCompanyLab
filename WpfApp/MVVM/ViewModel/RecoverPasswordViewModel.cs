@@ -26,6 +26,17 @@ namespace WpfApp.MVVM.ViewModel
             }
         }
 
+        private string _username;
+        public string Username
+        {
+            get => _username;
+            set
+            {
+                _username = value;
+                OnPropertyChange();
+            }
+        }
+
         private string _recoveryKey;
         public string RecoveryKey
         {
@@ -60,7 +71,7 @@ namespace WpfApp.MVVM.ViewModel
 
         private void Recover(object? o)
         {
-            bool result = _mainViewModel.TradingCompany.CheckRecoveryKey(RecoveryKey);
+            bool result = _mainViewModel.TradingCompany.CheckRecoveryKey(Username, RecoveryKey);
 
             if (result)
             {
@@ -74,7 +85,7 @@ namespace WpfApp.MVVM.ViewModel
 
         private void ResetPassword(object? o)
         {
-            bool result = _mainViewModel.TradingCompany.CheckRecoveryKey(RecoveryKey);
+            bool result = _mainViewModel.TradingCompany.CheckRecoveryKey(Username, RecoveryKey);
 
             if (!result)
             {
@@ -82,7 +93,7 @@ namespace WpfApp.MVVM.ViewModel
                 return;
             }
 
-            _mainViewModel.TradingCompany.UpdatePassword(RecoveryKey, NewPassword);
+            _mainViewModel.TradingCompany.UpdatePassword(Username, RecoveryKey, NewPassword);
             MessageBox.Show("Password updated successfully");
             _mainViewModel.Navigate(MainViewModel.Pages.Login);
         }

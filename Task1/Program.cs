@@ -66,7 +66,7 @@ class Program
 
         if (user == null)
         {
-            PasswordRecover(company);
+            PasswordRecover(company, username);
             return;
         }
 
@@ -82,7 +82,7 @@ class Program
         }
     }
 
-    private static void PasswordRecover(TradingCompany company)
+    private static void PasswordRecover(TradingCompany company, string username)
     {
         Console.WriteLine("Invalid username or password.");
 
@@ -99,7 +99,7 @@ class Program
         if (recoveryKey == null)
             return;
 
-        bool correctKey = company.CheckRecoveryKey(recoveryKey);
+        bool correctKey = company.CheckRecoveryKey(username, recoveryKey);
         if (!correctKey)
         {
             Console.WriteLine("Incorrect recovery key");
@@ -111,7 +111,7 @@ class Program
         if (newPassword == null)
             return;
 
-        company.UpdatePassword(recoveryKey, newPassword);
+        company.UpdatePassword(username, recoveryKey, newPassword);
 
         Console.WriteLine("Your password has been updated. Please log in again.");
     }
